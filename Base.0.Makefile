@@ -1,181 +1,190 @@
 SHELL := /bin/bash
 
-hel%: ## help: Show this help message. ## hel?: TODO
+define target_log
+	@echo -e "\n  \e[1;35m🞋  \e[1;37m$(@:$*=)\e[1;31m$*\e[0m\n"
+endef
+
+hel%: ## help: Show this help message.
+	$(call target_log)
 	@echo "usage: make [target] ..."
 	@echo ""
 	@echo "targets:"
 	@grep -Eh '^.+:\ ##\ .+' ${MAKEFILE_LIST} | cut -d ' ' -f '3-' | column -t -s ':'
-.PHONY: help help-super
 
 al%: install build ## all: Default target: install then build
-.PHONY: all all-super
+	$(call target_log)
 
 make-p: ## make-p: Launch all ${P} targets in parallel and exit as soon as one exits.
+	$(call target_log)
 	set -m; (for p in $(P); do ($(MAKE) $$p || kill 0)& done; wait)
-.PHONY: make-p make-p-super
+.PHONY: make-p
 
 en%: ## env: Run ${RUN} with Makefile environment
+	$(call target_log)
 	$(RUN)
-.PHONY: env env-super
 
 fix-node-instal%: ## fix-node-install: Various fix for node (including node-sass rebuild)
-	test -d $(NODE_MODULES)/node-sass/vendor/ || npm rebuild node-sass
-.PHONY: fix-node-install fix-node-install-super
+	$(call target_log)
+	@test -d $(NODE_MODULES)/node-sass/vendor/ || npm rebuild node-sass
 
 check-node-binar%: ## check-node-binary: TODO
+	$(call target_log)
 ifeq (, $(NPM))
-	echo 'You must have yarn installed'
+	@echo 'You must have yarn installed'
 	exit 4
 endif
-.PHONY: check-node-binary check-node-binary-super
 
 check-python-binar%: ## check-python-binary: TODO
+	$(call target_log)
 ifeq (, $(PIPENV))
-	echo 'You must have pipenv installed'
+	@echo 'You must have pipenv installed'
 	exit 4
 endif
-.PHONY: check-python-binary check-python-binary-super
 
 check-python-enviro%: ## check-python-environ: TODO
-	test -d $(PWD)/.venv || (echo "Python virtual environment not found. Creating with $(PYTHON_VERSION)..." && $(PIPENV) --python $(PYTHON_VERSION))
-.PHONY: check-python-environ check-python-environ-super
-
-install-nod%: check-node-binary ## install-node: TODO
-	$(NPM) install
-	$(MAKE) fix-node-install
-.PHONY: install-node install-node-super
+	$(call target_log)
+	@test -d $(PWD)/.venv || (echo "Python virtual environment not found. Creating with $(PYTHON_VERSION)..." && $(PIPENV) --python $(PYTHON_VERSION))
 
 install-node-pro%: check-node-binary ## install-node-prod: TODO
+	$(call target_log)
 	$(NPM) install --prod
 	$(MAKE) fix-node-install
-.PHONY: install-node-prod install-node-prod-super
-
-install-pytho%: check-python-binary check-python-environ ## install-python: TODO
-	$(PIPENV) install --dev
-.PHONY: install-python install-python-super
 
 install-python-pro%: check-python-binary check-python-environ ## install-python-prod: TODO
+	$(call target_log)
 	$(PIPENV) install --deploy
-.PHONY: install-python-prod install-python-prod-super
-
-instal%: install-node install-python ## install: TODO
-.PHONY: install install-super
 
 install-pro%: install-node-prod install-python-prod ## install-prod: TODO
-.PHONY: install-prod install-prod-super
+	$(call target_log)
+
+install-nod%: check-node-binary ## install-node: TODO
+	$(call target_log)
+	@$(NPM) install
+	@$(MAKE) fix-node-install
+
+install-pytho%: check-python-binary check-python-environ ## install-python: TODO
+	$(call target_log)
+	@$(PIPENV) install --dev
+
+install-d%:  ## install-db: TODO
+	$(call target_log)
+
+instal%: install-node install-python ## install: TODO
+	$(call target_log)
 
 full-instal%: clean-install install ## full-install: TODO
-.PHONY: full-install full-install-super
+	$(call target_log)
 
 upgrade-pytho%: ## upgrade-python: TODO
+	$(call target_log)
 	$(PIPENV) update
 	$(PIPENV) lock  # Maybe remove this later
 	$(PIPENV) install
-.PHONY: upgrade-python upgrade-python-super
 
 upgrade-nod%: ## upgrade-node: TODO
+	$(call target_log)
 	$(NPM) upgrade-interactive --latest
-.PHONY: upgrade-node upgrade-node-super
 
 upgrad%: upgrade-python upgrade-node ## upgrade: TODO
-.PHONY: upgrade upgrade-super
+	$(call target_log)
 
 clean-clien%: ## clean-client: TODO
+	$(call target_log)
 	rm -fr $(PWD)/lib/frontend/assets/*
-.PHONY: clean-client clean-client-super
 
 clean-serve%: ## clean-server: TODO
+	$(call target_log)
 	rm -fr dist
-.PHONY: clean-server clean-server-super
-
-clea%: clean-client clean-server ## clean: TODO
-.PHONY: clean clean-super
 
 clean-instal%: clean ## clean-install: TODO
+	$(call target_log)
 	rm -fr $(NODE_MODULES)
 	rm -fr $(VENV)
 	rm -fr *.egg-info
-.PHONY: clean-install clean-install-super
+
+clea%: clean-client clean-server ## clean: TODO
+	$(call target_log)
 
 lint-pytho%: ## lint-python: TODO
+	$(call target_log)
 	test -s $(PWD)/Pipfile.lock || (echo 'Missing Pipfile.lock file' && exit 5)
 	$(PIPENV) run py.test --flake8 --isort -m "flake8 or isort" lib --ignore=lib/frontend/static
-.PHONY: lint-python lint-python-super
 
 lint-nod%: ## lint-node: TODO
+	$(call target_log)
 	test -s $(PWD)/yarn.lock || (echo 'Missing yarn.lock file' && exit 6)
 	$(NPM) run lint
-.PHONY: lint-node lint-node-super
 
 lin%: lint-python lint-node ## lint: TODO
-.PHONY: lint lint-super
+	$(call target_log)
 
 fix-pytho%: ## fix-python: TODO
+	$(call target_log)
 	$(PIPENV) run yapf -vv -p -i lib/**/*.py
-.PHONY: fix-python fix-python-super
 
 fix-nod%: ## fix-node: TODO
+	$(call target_log)
 	$(NPM) run fix
-.PHONY: fix-node fix-node-super
 
 fi%: fix-python fix-node ## fix: TODO
-.PHONY: fix fix-super
+	$(call target_log)
+	$(NOOP)
 
 check-pytho%: ## check-python: TODO
+	$(call target_log)
 	FLASK_CONFIG=$(FLASK_TEST_CONFIG) $(PIPENV) run py.test lib $(PYTEST_ARGS)
-.PHONY: check-python check-python-super
 
 check-node-debu%: ## check-node-debug: TODO
+	$(call target_log)
 	$(NPM) run test-debug
-.PHONY: check-node-debug check-node-debug-super
 
 check-nod%: ## check-node: TODO
+	$(call target_log)
 	$(NPM) run test
-.PHONY: check-node check-node-super
 
 check-outdate%: ## check-outdated: TODO
+	$(call target_log)
 	$(NPM) outdated ||:
 	$(PIPENV) update --outdated ||:
-.PHONY: check-outdated check-outdated-super
 
 chec%: check-python check-node check-outdated ## check: TODO
-.PHONY: check check-super
+	$(call target_log)
 
 env-chec%: ## env-check: TODO
+	$(call target_log)
 	@test -d $(NODE_MODULES) || (@echo 'Please run make install before serving.' && exit 1)
-.PHONY: env-check env-check-super
 
 build-clien%: clean-client ## build-client: TODO
+	$(call target_log)
 	$(NPM) run build-client
-.PHONY: build-client build-client-super
 
 build-serve%: clean-server ## build-server: TODO
+	$(call target_log)
 	$(NPM) run build-server
-.PHONY: build-server build-server-super
 
 buil%: build-server build-client ## build: TODO
-.PHONY: build build-super
+	$(call target_log)
 
 serve-pytho%: ## serve-python: TODO
+	$(call target_log)
 	$(PIPENV) run flask run --with-threads -h $(HOST) -p $(API_PORT)
-.PHONY: serve-python serve-python-super
 
 serve-nod%: ## serve-node: TODO
+	$(call target_log)
 	$(NPM) run serve
-.PHONY: serve-node serve-node-super
 
 serve-node-serve%: ## serve-node-server: TODO
+	$(call target_log)
 	$(NPM) run serve-server
-.PHONY: serve-node-server serve-node-server-super
 
 serve-node-clien%: ## serve-node-client: TODO
+	$(call target_log)
 	$(NPM) run serve-client
-.PHONY: serve-node-client serve-node-client-super
 
 serv%: env-check clean ## serve: TODO
+	$(call target_log)
 	$(MAKE) P="serve-node-client serve-node-server serve-python" make-p
-.PHONY: serve serve-super
 
 ru%: ## run: TODO
+	$(call target_log)
 	FLASK_DEBUG=0 MOCK_NGINX=y $(MAKE) P="serve-python serve-node" make-p
-.PHONY: run run-super
