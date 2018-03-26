@@ -13,6 +13,7 @@ hel%: ## help: Show this help message.
 
 al%: install build ## all: Default target: install then build
 	$(call target_log)
+.DEFAULT_GOAL := all
 
 make-p: ## make-p: Launch all ${P} targets in parallel and exit as soon as one exits.
 	$(call target_log)
