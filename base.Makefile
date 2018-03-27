@@ -4,8 +4,11 @@
 # Use `-super` suffix to call for parent tasks
 # NB: Targets that match less specifically must have dependencies otherwise the more specific ones are ignored
 
+# Use bash
 SHELL := /bin/bash
 
+# Set PATH to node and python binaries
+export PATH := ./node_modules/.bin:.venv/bin:$(PATH)
 
 #
 # Functions
@@ -46,20 +49,20 @@ check-node-binar%: ## check-node-binary: Ensure yarn is installed or throw error
 	$(call target_log)
 ifeq (, $(NPM))
 	$(call error_log, You must have yarn installed)
-	exit 4
+	@exit 4
 endif
 
 check-python-binar%: ## check-python-binary: Ensure pipenv is installed or throw error
 	$(call target_log)
 ifeq (, $(PIPENV))
 	$(call error_log, You must have pipenv installed)
-	exit 5
+	@exit 5
 endif
 
 check-python-enviro%: ## check-python-environ: Create python env if empty
 	$(call target_log)
 ifeq (, $(wildcard $(PWD)/.venv))
-	@echo "Python virtual environment not found. Creating with $(PYTHON_VERSION)..."
+	echo "Python virtual environment not found. Creating with $(PYTHON_VERSION)..."
 	$(PIPENV) --python $(PYTHON_VERSION)
 endif
 
@@ -67,7 +70,7 @@ check-node-enviro%: ## env-check: Check for node installation
 	$(call target_log)
 ifeq (, $(wildcard $(NODE_MODULES)))
 	$(call error_log, Please run make install before serving)
-	exit 4
+	@exit 4
 endif
 
 #
@@ -144,28 +147,28 @@ lint-pytho%: ## lint-python: Lint python source
 	$(call target_log)
 ifeq (, $(wildcard $(PWD)/Pipfile.lock))
 	$(call error_log, Missing Pipfile.lock file)
-	exit 5
+	@exit 5
 endif
-	$(PIPENV) run py.test --flake8 --isort -m "flake8 or isort" lib --ignore=lib/frontend/static
+	py.test --flake8 --isort -m "flake8 or isort" lib --ignore=lib/frontend/static
 
 lint-nod%: ## lint-node: Lint node source
 	$(call target_log)
 ifeq (, $(wildcard $(PWD)/yarn.lock))
 	$(call error_log, Missing yarn.lock file)
-	exit 4
+	@exit 4
 endif
-	$(NPM) run lint
+	eslint --cache --ext .jsx --ext .js lib/
 
 lin%: lint-python lint-node ## lint: Lint all source
 	$(call target_log)
 
 fix-pytho%: ## fix-python: Fix python source format
 	$(call target_log)
-	$(PIPENV) run yapf -vv -p -i lib/**/*.py
+	yapf -vv -p -i lib/**/*.py
 
 fix-nod%: ## fix-node: Fix node source format
 	$(call target_log)
-	$(NPM) run fix
+	prettier --write '{,lib/tests/**/,lib/frontend/src/**/}*.js?(x)'
 
 fi%: fix-python fix-node ## fix: Fix all source format
 	$(call target_log)
@@ -175,11 +178,15 @@ fi%: fix-python fix-node ## fix: Fix all source format
 #
 check-pytho%: ## check-python: Run python tests
 	$(call target_log)
-	FLASK_CONFIG=$(FLASK_TEST_CONFIG) $(PIPENV) run py.test lib $(PYTEST_ARGS)
+	FLASK_CONFIG=$(FLASK_TEST_CONFIG) py.test lib $(PYTEST_ARGS)
 
 check-nod%: ## check-node: Run node tests
 	$(call target_log)
-	$(NPM) run test
+ifeq (,$(DEBUG_NODE))
+	jest --no-cache
+else
+	inspect $(NODE_MODULES)/.bin/jest --runInBand --env jest-environment-node-debug
+endif
 
 check-outdate%: ## check-outdated: Check for outdated dependencies
 	$(call target_log)
@@ -194,11 +201,11 @@ chec%: check-python check-node check-outdated ## check: Run all test and output 
 #
 build-clien%: clean-client ## build-client: Build node client files
 	$(call target_log)
-	$(NPM) run build-client
+	WEBPACK_ENV=browser NODE_ENV=production webpack
 
 build-serve%: clean-server ## build-server: Build node server files
 	$(call target_log)
-	$(NPM) run build-server
+	WEBPACK_ENV=server NODE_ENV=production webpack
 
 buil%: build-server build-client ## build: Build node files
 	$(call target_log)
@@ -208,19 +215,19 @@ buil%: build-server build-client ## build: Build node files
 #
 serve-pytho%: ## serve-python: Run python server
 	$(call target_log)
-	$(PIPENV) run flask run --with-threads -h $(HOST) -p $(API_PORT)
+	flask run --with-threads -h $(HOST) -p $(API_PORT)
 
 serve-nod%: ## serve-node: Run build node server
 	$(call target_log)
-	$(NPM) run serve
+	NODE_ENV=production node dist/server.js
 
 serve-node-serve%: ## serve-node-server: Run node server
 	$(call target_log)
-	$(NPM) run serve-server
+	WEBPACK_ENV=server NODE_ENV=development webpack
 
 serve-node-clien%: ## serve-node-client: Run node development files
 	$(call target_log)
-	$(NPM) run serve-client
+	WEBPACK_ENV=browser NODE_ENV=development webpack-dev-server
 
 serv%: check-node-environ clean ## serve: Run all servers in development
 	$(call target_log)
