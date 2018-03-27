@@ -84,7 +84,7 @@ install-node-pro%: check-node-binary ## install-node-prod: Install node dependen
 	$(NPM) install --prod
 	$(MAKE) fix-node-install
 
-install-python-pro%: check-python-binary check-python-environ ## install-python-prod:  Install python dependencies for production
+install-python-pro%: check-python-binary check-python-environ ## install-python-prod: Install python dependencies for production
 	$(call target_log)
 	$(PIPENV) install --deploy
 
@@ -100,7 +100,7 @@ install-pytho%: check-python-binary check-python-environ ## install-python: Inst
 	$(call target_log)
 	$(PIPENV) install --dev
 
-install-d%:  ## install-db: Install database if any
+install-d%: ## install-db: Install database if any
 	$(call target_log)
 
 instal%: install-node install-python ## install: Install project dependencies for development
