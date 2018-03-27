@@ -1,4 +1,5 @@
-# Version 1.0
+VERSION := 1.0.1
+INFO := $(shell echo -e "\e[0;93m🍋  \e[1;37mMake\e[1;33mCitron \e[1;37m$(VERSION)\e[0m")
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # It should be used with the script present in exemple.Makefile
 # Use `-super` suffix to call for parent tasks
