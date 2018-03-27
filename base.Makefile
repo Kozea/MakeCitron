@@ -21,10 +21,11 @@ endef
 #
 # Utilities
 #
-hel%: ## help: Show this help message.
+hel%: ## help: Show this help message. (Default)
 	$(call target_log)
 	@echo -e "usage: make [target] ...\n\ntargets:\n	"
 	@grep -Eh '^.+:\ .*##\ .+' $(MAKEFILE_LIST) | cut -d '#' -f '3-' | sed -e 's/^\(.*\):\(.*\)/\o033[1;35m\ \1\o033[0;37m:\2\o033[0m/' | column -t -s ':'
+.DEFAULT_GOAL := help
 
 make-p: ## make-p: Launch all ${P} targets in parallel and exit as soon as one exits.
 	$(call target_log)
@@ -35,9 +36,8 @@ en%: ## env: Run ${RUN} with Makefile environment
 	$(call target_log)
 	$(RUN)
 
-al%: install build ## all: Default target, install then build
+al%: install build ## all: Install then build
 	$(call target_log)
-.DEFAULT_GOAL := all
 
 #
 # Environment checking
