@@ -42,12 +42,6 @@ al%: install build ## all: Default target, install then build
 #
 # Environment checking
 #
-fix-node-instal%: ## fix-node-install: Various fixes for node (including node-sass rebuild)
-	$(call target_log)
-ifeq (, $(wildcard $(NODE_MODULES)/node-sass/vendor/))
-	npm rebuild node-sass
-endif
-
 check-node-binar%: ## check-node-binary: Ensure yarn is installed or throw error
 	$(call target_log)
 ifeq (, $(NPM))
@@ -82,7 +76,6 @@ endif
 install-node-pro%: check-node-binary ## install-node-prod: Install node dependencies for production
 	$(call target_log)
 	$(NPM) install --prod
-	$(MAKE) fix-node-install
 
 install-python-pro%: check-python-binary check-python-environ ## install-python-prod: Install python dependencies for production
 	$(call target_log)
@@ -94,7 +87,6 @@ install-pro%: install-node-prod install-python-prod ## install-prod: Install pro
 install-nod%: check-node-binary ## install-node: Install node dependencies for development
 	$(call target_log)
 	$(NPM) install
-	$(MAKE) fix-node-install
 
 install-pytho%: check-python-binary check-python-environ ## install-python: Install python dependencies for development
 	$(call target_log)
