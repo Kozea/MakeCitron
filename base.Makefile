@@ -1,5 +1,5 @@
-VERSION := 1.0.1
-INFO := $(shell echo -e "\e[0;93m🍋  \e[1;37mMake\e[1;33mCitron \e[1;37m$(VERSION)\e[0m")
+VERSION := 1.0.2
+INFO := $(shell echo -e "    \e[0;93m🍋  \e[1;37mMake\e[1;33mCitron \e[1;37m$(VERSION)\e[0m")
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # It should be used with the script present in exemple.Makefile
 # Use `-super` suffix to call for parent tasks
@@ -15,7 +15,7 @@ export PATH := ./node_modules/.bin:.venv/bin:$(PATH)
 # Functions
 #
 define target_log
-	@echo -e "\n\e[1;35m🞋  \e[1;37m$(@:$*=)\e[1;31m$* \e[1;36m$(shell seq -s"➘" $$((MAKELEVEL + 1)) | tr -d '[:digit:]')\e[0m\n"
+	@echo -e "\n  \e[1;35m🞋  \e[1;37m$(@:$*=)\e[1;31m$* \e[1;36m$(shell seq -s"➘" $$((MAKELEVEL + 1)) | tr -d '[:digit:]')\e[0m\n"
 endef
 
 define error_log
@@ -88,13 +88,29 @@ install-python-pro%: check-python-binary check-python-environ ## install-python-
 install-pro%: install-node-prod install-python-prod ## install-prod: Install project dependencies for production
 	$(call target_log)
 
-install-nod%: check-node-binary ## install-node: Install node dependencies for development
+yarn.lock: node_modules package.json
 	$(call target_log)
-	$(NPM) install
+	yarn install --production=false --check-files
+	touch -mr $(shell ls -Atd $? | head -1) $@
 
-install-pytho%: check-python-binary check-python-environ ## install-python: Install python dependencies for development
+node_modules:
+	$(call target_log)
+	mkdir -p $@
+
+Pipfile.lock: .venv Pipfile
 	$(call target_log)
 	$(PIPENV) install --dev
+	touch -mr $(shell ls -Atd $? | head -1) $@
+
+.venv:
+	$(call target_log)
+	$(PIPENV) --python $(PYTHON_VERSION)
+
+install-nod%: check-node-binary yarn.lock ## install-node: Install node dependencies for development
+	$(call target_log)
+
+install-pytho%: check-python-binary Pipfile.lock ## install-python: Install python dependencies for development
+	$(call target_log)
 
 install-d%: ## install-db: Install database if any
 	$(call target_log)
@@ -102,8 +118,10 @@ install-d%: ## install-db: Install database if any
 instal%: install-node install-python ## install: Install project dependencies for development
 	$(call target_log)
 
-full-instal%: clean-install install ## full-install: Clean everything and install again
+full-instal%: ## full-install: Clean everything and install again
 	$(call target_log)
+	$(MAKE) clean-install
+	$(MAKE) install
 
 #
 # Upgrading
