@@ -18,9 +18,21 @@ define target_log
 	@echo -e "\n  \e[1;35m🞋  \e[1;37m$(@:$*=)\e[1;31m$* \e[1;36m$(shell seq -s"➘" $$((MAKELEVEL + 1)) | tr -d '[:digit:]')\e[0m\n"
 endef
 
-define error_log
-	@echo -e "\n    \e[1;35m⚠  \e[1;31mERROR: \e[0;35m$1\e[0m\n"
-endef
+
+# Environment checking
+ifeq (, $(NODE_ONLY))
+ifeq (, $(PIPENV))
+ERROR := $(shell echo -e "\e[1;35m⚠  \e[1;31mERROR: \e[0;35mYou must have pipenv installed\e[0m")
+$(error $(ERROR))
+endif
+endif
+
+ifeq (, $(PYTHON_ONLY))
+ifeq (, $(NPM))
+ERROR := $(shell echo -e "\e[1;35m⚠  \e[1;31mERROR: \e[0;35mYou must have yarn installed\e[0m")
+$(error $(ERROR))
+endif
+endif
 
 #
 # Utilities
@@ -48,31 +60,10 @@ al%: install build ## all: Install then build
 #
 check-node-binar%: ## check-node-binary: Ensure yarn is installed or throw error
 	$(call target_log)
-ifeq (, $(NPM))
-	$(call error_log, You must have yarn installed)
-	@exit 4
-endif
 
 check-python-binar%: ## check-python-binary: Ensure pipenv is installed or throw error
 	$(call target_log)
-ifeq (, $(PIPENV))
-	$(call error_log, You must have pipenv installed)
-	@exit 5
-endif
 
-check-python-enviro%: ## check-python-environ: Create python env if empty
-	$(call target_log)
-ifeq (, $(wildcard $(PWD)/.venv))
-	echo "Python virtual environment not found. Creating with $(PYTHON_VERSION)..."
-	$(PIPENV) --python $(PYTHON_VERSION)
-endif
-
-check-node-enviro%: ## env-check: Check for node installation
-	$(call target_log)
-ifeq (, $(wildcard $(NODE_MODULES)))
-	$(call error_log, Please run make install before serving)
-	@exit 4
-endif
 
 #
 # Installing
@@ -164,18 +155,10 @@ clea%: clean-client clean-server ## clean: Clean all built assets
 #
 lint-pytho%: ## lint-python: Lint python source
 	$(call target_log)
-ifeq (, $(wildcard $(PWD)/Pipfile.lock))
-	$(call error_log, Missing Pipfile.lock file)
-	@exit 5
-endif
 	py.test --flake8 --isort -m "flake8 or isort" lib --ignore=lib/frontend/static
 
 lint-nod%: ## lint-node: Lint node source
 	$(call target_log)
-ifeq (, $(wildcard $(PWD)/yarn.lock))
-	$(call error_log, Missing yarn.lock file)
-	@exit 4
-endif
 	eslint --cache --ext .jsx --ext .js lib/
 
 lin%: lint-python lint-node ## lint: Lint all source
@@ -189,7 +172,7 @@ fix-nod%: ## fix-node: Fix node source format
 	$(call target_log)
 	prettier --write '{,lib/tests/**/,lib/frontend/src/**/}*.js?(x)'
 
-fi%: fix-python fix-node ## fix: Fix all source format
+fi%: install fix-python fix-node ## fix: Fix all source format
 	$(call target_log)
 
 #
@@ -226,7 +209,7 @@ build-serve%: clean-server ## build-server: Build node server files
 	$(call target_log)
 	WEBPACK_ENV=server NODE_ENV=production webpack
 
-buil%: build-server build-client ## build: Build node files
+buil%: install build-server build-client ## build: Build node files
 	$(call target_log)
 
 #
@@ -248,10 +231,10 @@ serve-node-clien%: ## serve-node-client: Run node development files
 	$(call target_log)
 	WEBPACK_ENV=browser NODE_ENV=development webpack-dev-server
 
-serv%: check-node-environ clean ## serve: Run all servers in development
+serv%: clean install ## serve: Run all servers in development
 	$(call target_log)
 	$(MAKE) P="serve-node-client serve-node-server serve-python" make-p
 
-ru%: ## run: Run built production servers
+ru%: install ## run: Run built production servers
 	$(call target_log)
 	FLASK_DEBUG=0 MOCK_NGINX=y $(MAKE) P="serve-python serve-node" make-p
