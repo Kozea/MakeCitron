@@ -1,4 +1,4 @@
-iinclude config.Makefile
+include config.Makefile
 -include config.custom.Makefile
 
 BASEVERSION ?= v1
