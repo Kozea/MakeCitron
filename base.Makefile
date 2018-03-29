@@ -1,4 +1,4 @@
-VERSION := 1.2.1
+VERSION := 1.2.2
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # It should be used with the script present in exemple.Makefile
 # Use `-super` suffix to call for parent tasks
@@ -112,7 +112,9 @@ install-pytho%: Pipfile.lock ## install-python: Install python dependencies for 
 install-d%: ## install-db: Install database if any
 	$(LOG)
 
-instal%: least-specific-install ## install: Install project dependencies for development
+pre-instal%:  ## pre-install: Run pre install hooks
+
+instal%: least-specific-install pre-install ## install: Install project dependencies for development
 	$(LOG)
 ifdef _NODE
 	$(MAKE) install-node
@@ -279,7 +281,7 @@ serve-node-clien%: ## serve-node-client: Run node development files
 	$(LOG)
 	WEBPACK_ENV=browser NODE_ENV=development webpack-dev-server
 
-serv%: least-specific-serve lean install ## serve: Run all servers in development
+serv%: least-specific-serve clean install ## serve: Run all servers in development
 	$(LOG)
 ifdef NODE_ONLY
 	$(MAKE) P="serve-node-client serve-node-server" make-p
