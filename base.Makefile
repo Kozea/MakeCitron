@@ -1,4 +1,4 @@
-VERSION := 1.2.2
+VERSION := 1.2.3
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # It should be used with the script present in exemple.Makefile
 # Use `-super` suffix to call for parent tasks
@@ -51,7 +51,7 @@ hel%: ## help: Show this help message. (Default)
 .DEFAULT_GOAL := help
 
 least-specific%:
-	$(LOG)
+	@true
 
 make-p: ## make-p: Launch all ${P} targets in parallel and exit as soon as one exits.
 	$(LOG)
@@ -113,6 +113,7 @@ install-d%: ## install-db: Install database if any
 	$(LOG)
 
 pre-instal%:  ## pre-install: Run pre install hooks
+	$(LOG)
 
 instal%: least-specific-install pre-install ## install: Install project dependencies for development
 	$(LOG)
