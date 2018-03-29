@@ -1,4 +1,4 @@
-VERSION := 1.2.3
+VERSION := 1.2.4
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # It should be used with the script present in exemple.Makefile
 # Use `-super` suffix to call for parent tasks
@@ -65,9 +65,20 @@ en%: ## env: Run ${RUN} with Makefile environment
 al%: install build ## all: Install then build
 	$(LOG)
 
+pre-commi%: ## pre-commit: Target to run at pre-commit
+	$(LOG)
+	$(MAKE) fix
+	$(MAKE) lint
+
 #
 # Installing
 #
+install-pre-commit: ## install-pre-commit: Install pre-commit hook
+	$(LOG)
+	@# TODO: Find a better solution to not do this every run
+	echo 'make pre-commit' > .git/hooks/pre-commit
+	chmod +x .git/hooks/pre-commit
+
 install-node-pro%: ## install-node-prod: Install node dependencies for production
 	$(LOG)
 	$(NPM) install --prod
@@ -115,7 +126,7 @@ install-d%: ## install-db: Install database if any
 pre-instal%:  ## pre-install: Run pre install hooks
 	$(LOG)
 
-instal%: least-specific-install pre-install ## install: Install project dependencies for development
+instal%: least-specific-install pre-install install-pre-commit ## install: Install project dependencies for development
 	$(LOG)
 ifdef _NODE
 	$(MAKE) install-node
