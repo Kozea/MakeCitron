@@ -1,8 +1,9 @@
-VERSION := 1.2.0
+VERSION := 1.2.1
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # It should be used with the script present in exemple.Makefile
 # Use `-super` suffix to call for parent tasks
 # NB: Targets that match less specifically must have dependencies otherwise the more specific ones are ignored
+#     Therefore a least-specific target is used as dependency
 # It supports NODE_ONLY and PYTHON_ONLY configuration variables
 
 INFO := $(shell echo -e "    \e[0;93m🍋  \e[1;37mMake\e[1;33mCitron \e[1;37m$(VERSION)\e[0m")
@@ -48,6 +49,9 @@ hel%: ## help: Show this help message. (Default)
 	@echo -e "usage: make [target] ...\n\ntargets:\n	"
 	@grep -Eh '^.+:\ .*##\ .+' $(MAKEFILE_LIST) | cut -d '#' -f '3-' | sed -e 's/^\(.*\):\(.*\)/\o033[1;35m\ \1\o033[0;37m:\2\o033[0m/' | column -t -s ':'
 .DEFAULT_GOAL := help
+
+least-specific%:
+	$(LOG)
 
 make-p: ## make-p: Launch all ${P} targets in parallel and exit as soon as one exits.
 	$(LOG)
@@ -108,7 +112,7 @@ install-pytho%: Pipfile.lock ## install-python: Install python dependencies for 
 install-d%: ## install-db: Install database if any
 	$(LOG)
 
-instal%: ## install: Install project dependencies for development
+instal%: least-specific-install ## install: Install project dependencies for development
 	$(LOG)
 ifdef _NODE
 	$(MAKE) install-node
@@ -135,7 +139,7 @@ upgrade-nod%: ## upgrade-node: Upgrade interactively locked node dependencies
 	$(LOG)
 	$(NPM) upgrade-interactive --latest
 
-upgrad%: ## upgrade: Upgrade all dependencies
+upgrad%: least-specific-upgrade ## upgrade: Upgrade all dependencies
 	$(LOG)
 ifdef _NODE
 	$(MAKE) upgrade-node
@@ -164,8 +168,10 @@ ifdef _NODE
 	rm -fr $(NODE_MODULES)
 endif
 
-clea%: clean-client clean-server ## clean: Clean all built assets
+clea%: least-specific-clean ## clean: Clean all built assets
 	$(LOG)
+	$(MAKE) clean-client
+	$(MAKE) clean-server
 
 #
 # Linting
@@ -178,7 +184,7 @@ lint-nod%: ## lint-node: Lint node source
 	$(LOG)
 	eslint --cache --ext .jsx --ext .js lib/
 
-lin%: ## lint: Lint all source
+lin%: least-specific-lint ## lint: Lint all source
 	$(LOG)
 ifdef _NODE
 	$(MAKE) lint-node
@@ -195,7 +201,7 @@ fix-nod%: ## fix-node: Fix node source format
 	$(LOG)
 	prettier --write '{,lib/tests/**/,lib/frontend/src/**/}*.js?(x)'
 
-fi%: install ## fix: Fix all source format
+fi%: least-specific-fix install ## fix: Fix all source format
 	$(LOG)
 ifdef _NODE
 	$(MAKE) fix-node
@@ -228,7 +234,7 @@ ifdef _PYTHON
 	$(PIPENV) update --outdated ||:
 endif
 
-chec%: ## check: Run all test and output outdated dependencies
+chec%: least-specific-check ## check: Run all test and output outdated dependencies
 	$(LOG)
 ifdef _PYTHON
 	$(MAKE) check-python
@@ -249,7 +255,7 @@ build-serve%: clean-server ## build-server: Build node server files
 	$(LOG)
 	WEBPACK_ENV=server NODE_ENV=production webpack
 
-buil%: install ## build: Build node files
+buil%: least-specific-build install ## build: Build node files
 	$(LOG)
 	$(MAKE) build-server
 	$(MAKE) build-client
@@ -273,7 +279,7 @@ serve-node-clien%: ## serve-node-client: Run node development files
 	$(LOG)
 	WEBPACK_ENV=browser NODE_ENV=development webpack-dev-server
 
-serv%: clean install ## serve: Run all servers in development
+serv%: least-specific-serve lean install ## serve: Run all servers in development
 	$(LOG)
 ifdef NODE_ONLY
 	$(MAKE) P="serve-node-client serve-node-server" make-p
