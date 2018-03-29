@@ -1,8 +1,10 @@
-VERSION := 1.1.0
+VERSION := 1.2.0
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # It should be used with the script present in exemple.Makefile
 # Use `-super` suffix to call for parent tasks
 # NB: Targets that match less specifically must have dependencies otherwise the more specific ones are ignored
+# It supports NODE_ONLY and PYTHON_ONLY configuration variables
+
 INFO := $(shell echo -e "    \e[0;93m🍋  \e[1;37mMake\e[1;33mCitron \e[1;37m$(VERSION)\e[0m")
 
 # Use bash
@@ -13,16 +15,25 @@ export PATH := ./node_modules/.bin:.venv/bin:$(PATH)
 
 LOG = @echo -e "\n  \e[1;35m🞋  \e[1;37m$(@:$*=)\e[1;31m$* \e[1;36m$(shell seq -s"➘" $$((MAKELEVEL + 1)) | tr -d '[:digit:]')\e[0m"
 
+_PYTHON =
+_NODE =
+ifndef NODE_ONLY
+_PYTHON = 1
+endif
+ifndef PYTHON_ONLY
+_NODE = 1
+endif
+
 
 # Environment checking
-ifeq (, $(NODE_ONLY))
+ifdef _PYTHON
 ifeq (, $(PIPENV))
 ERROR := $(shell echo -e "\e[1;35m⚠  \e[1;31mERROR: \e[0;35mYou must have pipenv installed\e[0m")
 $(error $(ERROR))
 endif
 endif
 
-ifeq (, $(PYTHON_ONLY))
+ifdef _NODE
 ifeq (, $(NPM))
 ERROR := $(shell echo -e "\e[1;35m⚠  \e[1;31mERROR: \e[0;35mYou must have yarn installed\e[0m")
 $(error $(ERROR))
@@ -61,8 +72,14 @@ install-python-pro%: ## install-python-prod: Install python dependencies for pro
 	$(LOG)
 	$(PIPENV) install --deploy
 
-install-pro%: install-node-prod install-python-prod ## install-prod: Install project dependencies for production
+install-pro%: ## install-prod: Install project dependencies for production
 	$(LOG)
+ifdef _NODE
+	$(MAKE) install-node-prod
+endif
+ifdef _PYTHON
+	$(MAKE) install-python-prod
+endif
 
 yarn.lock: node_modules package.json
 	$(LOG)
@@ -91,8 +108,14 @@ install-pytho%: Pipfile.lock ## install-python: Install python dependencies for 
 install-d%: ## install-db: Install database if any
 	$(LOG)
 
-instal%: install-node install-python ## install: Install project dependencies for development
+instal%: ## install: Install project dependencies for development
 	$(LOG)
+ifdef _NODE
+	$(MAKE) install-node
+endif
+ifdef _PYTHON
+	$(MAKE) install-python
+endif
 
 full-instal%: ## full-install: Clean everything and install again
 	$(LOG)
@@ -112,9 +135,14 @@ upgrade-nod%: ## upgrade-node: Upgrade interactively locked node dependencies
 	$(LOG)
 	$(NPM) upgrade-interactive --latest
 
-upgrad%: upgrade-python upgrade-node ## upgrade: Upgrade all dependencies
+upgrad%: ## upgrade: Upgrade all dependencies
 	$(LOG)
-
+ifdef _NODE
+	$(MAKE) upgrade-node
+endif
+ifdef _PYTHON
+	$(MAKE) upgrade-python
+endif
 #
 # Cleaning
 #
@@ -128,9 +156,13 @@ clean-serve%: ## clean-server: Clean built server assets
 
 clean-instal%: clean ## clean-install: Clean all installed dependencies
 	$(LOG)
-	rm -fr $(NODE_MODULES)
+ifdef _PYTHON
 	rm -fr $(VENV)
 	rm -fr *.egg-info
+endif
+ifdef _NODE
+	rm -fr $(NODE_MODULES)
+endif
 
 clea%: clean-client clean-server ## clean: Clean all built assets
 	$(LOG)
@@ -146,8 +178,14 @@ lint-nod%: ## lint-node: Lint node source
 	$(LOG)
 	eslint --cache --ext .jsx --ext .js lib/
 
-lin%: lint-python lint-node ## lint: Lint all source
+lin%: ## lint: Lint all source
 	$(LOG)
+ifdef _NODE
+	$(MAKE) lint-node
+endif
+ifdef _PYTHON
+	$(MAKE) lint-python
+endif
 
 fix-pytho%: ## fix-python: Fix python source format
 	$(LOG)
@@ -157,8 +195,14 @@ fix-nod%: ## fix-node: Fix node source format
 	$(LOG)
 	prettier --write '{,lib/tests/**/,lib/frontend/src/**/}*.js?(x)'
 
-fi%: install fix-python fix-node ## fix: Fix all source format
+fi%: install ## fix: Fix all source format
 	$(LOG)
+ifdef _NODE
+	$(MAKE) fix-node
+endif
+ifdef _PYTHON
+	$(MAKE) fix-python
+endif
 
 #
 # Testing
@@ -177,11 +221,22 @@ endif
 
 check-outdate%: ## check-outdated: Check for outdated dependencies
 	$(LOG)
+ifdef _NODE
 	$(NPM) outdated ||:
+endif
+ifdef _PYTHON
 	$(PIPENV) update --outdated ||:
+endif
 
-chec%: check-python check-node check-outdated ## check: Run all test and output outdated dependencies
+chec%: ## check: Run all test and output outdated dependencies
 	$(LOG)
+ifdef _PYTHON
+	$(MAKE) check-python
+endif
+ifdef _NODE
+	$(MAKE) check-node
+endif
+	$(MAKE) check-outdated
 
 #
 # Building
@@ -194,8 +249,10 @@ build-serve%: clean-server ## build-server: Build node server files
 	$(LOG)
 	WEBPACK_ENV=server NODE_ENV=production webpack
 
-buil%: install build-server build-client ## build: Build node files
+buil%: install ## build: Build node files
 	$(LOG)
+	$(MAKE) build-server
+	$(MAKE) build-client
 
 #
 # Serving
@@ -218,8 +275,24 @@ serve-node-clien%: ## serve-node-client: Run node development files
 
 serv%: clean install ## serve: Run all servers in development
 	$(LOG)
+ifdef NODE_ONLY
+	$(MAKE) P="serve-node-client serve-node-server" make-p
+else
+ifdef PYTHON_ONLY
+	$(MAKE) serve-python
+else
 	$(MAKE) P="serve-node-client serve-node-server serve-python" make-p
+endif
+endif
 
 ru%: install ## run: Run built production servers
 	$(LOG)
+ifdef NODE_ONLY
+	MOCK_NGINX=y $(MAKE) serve-node
+else
+ifdef PYTHON_ONLY
+	FLASK_DEBUG=0 $(MAKE) serve-python
+else
 	FLASK_DEBUG=0 MOCK_NGINX=y $(MAKE) P="serve-python serve-node" make-p
+endif
+endif
