@@ -1,4 +1,4 @@
-VERSION := 1.2.6
+VERSION := 1.2.7
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # It should be used with the script present in exemple.Makefile
 # Use `-super` suffix to call for parent tasks
@@ -320,3 +320,14 @@ else
 	FLASK_DEBUG=0 MOCK_NGINX=y $(MAKE) P="serve-python serve-node" make-p
 endif
 endif
+
+deploy-tes%: ## deploy-test: Run test deployment for ci
+	BRANCH_NAME := echo $(CI_COMMIT_REF_NAME) | tr -cd "[[:alnum:]]"
+	URL_TEST ?= https://test-$(CI_PROJECT_NAME)-$(BRANCH_NAME).kozea.fr
+	URL_TEST_API ?= https://test-$(CI_PROJECT_NAME)-$(BRANCH_NAME).kozea.fr/api
+
+	OUTPUT_FILE := /tmp/$(CI_PROJECT_NAME)-$(CI_COMMIT_REF_NAME).log
+	PARAMETERS = "{\"job_id\":\"$(CI_JOB_ID)\", \"token\":\"$(TOKEN)\", \"url\":\"$(CI_REPOSITORY_URL)\", \"build_stage\":\"$(CI_JOB_STAGE)\", \"project_name\":\"$(CI_PROJECT_NAME)\", \"branch\":\"$(CI_COMMIT_REF_NAME)\", \"password\":\"$(PASSWD)\", \"commit_sha\":\"$(CI_COMMIT_SHA)\", \"url_test\":\"$(URL_TEST)\"}"
+	wget --no-verbose --content-on-error -O- --header="Content-Type:application/json" --post-data="""$(PARAMETERS)""" $(JUNKRAT) | tee $(OUTPUT_FILE) && [[ $(tail -n1 $(OUTPUT_FILE)) == "Success" ]]
+	wget --no-verbose --content-on-error -O- $(URL_TEST)
+	wget --no-verbose --content-on-error -O- $(URL_TEST_API)
