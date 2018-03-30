@@ -1,4 +1,4 @@
-VERSION := 1.2.4
+VERSION := 1.2.5
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # It should be used with the script present in exemple.Makefile
 # Use `-super` suffix to call for parent tasks
@@ -209,7 +209,7 @@ endif
 
 fix-pytho%: ## fix-python: Fix python source format
 	$(LOG)
-	yapf -vv -p -i lib/**/*.py
+	yapf -vv -p -i -r lib
 
 fix-nod%: ## fix-node: Fix node source format
 	$(LOG)
