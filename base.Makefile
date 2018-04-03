@@ -1,4 +1,4 @@
-VERSION := 1.2.13
+VERSION := 1.2.14
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # It should be used with the script present in exemple.Makefile
 # Use `-super` suffix to call for parent tasks
@@ -321,7 +321,9 @@ endif
 
 BRANCH_NAME = $(shell echo $(CI_COMMIT_REF_NAME) | tr -cd "[[:alnum:]]")
 URL_TEST ?= https://test-$(CI_PROJECT_NAME)-$(BRANCH_NAME).kozea.fr
-URL_TEST_API ?= https://test-$(CI_PROJECT_NAME)-$(BRANCH_NAME).kozea.fr/api
+URL_TEST_API ?= $(URL_TEST)/api
+URL_PROD ?= https://$(CI_PROJECT_NAME).kozea.fr
+URL_PROD_API ?= $(URL_PROD)/api
 JUNKRAT_RESPONSE = /tmp/$(CI_PROJECT_NAME)-$(CI_COMMIT_REF_NAME).log
 define newline
 
@@ -343,8 +345,16 @@ endef
 
 deploy-tes%: ## deploy-test: Run test deployment for ci
 	$(LOG)
-	@echo "Communicating with Junkrat... (outing to $(JUNKRAT_RESPONSE))"
+	@echo "Communicating with Junkrat..."
 	@wget --no-verbose --content-on-error -O- --header="Content-Type:application/json" --post-data=$(subst $(newline),,$(JUNKRAT_PARAMETERS)) $(JUNKRAT) | tee $(JUNKRAT_RESPONSE)
 	if [[ $$(tail -n1 $(JUNKRAT_RESPONSE)) != "Success" ]]; then exit 9; fi
 	wget --no-verbose --content-on-error -O- $(URL_TEST)
 	wget --no-verbose --content-on-error -O- $(URL_TEST_API)
+
+deploy-pro%: ## deploy-prod: Run prod deployment for ci
+	$(LOG)
+	@echo "Communicating with Junkrat..."
+	@wget --no-verbose --content-on-error -O- --header="Content-Type:application/json" --post-data=$(subst $(newline),,$(JUNKRAT_PARAMETERS)) $(JUNKRAT) | tee $(JUNKRAT_RESPONSE)
+	if [[ $$(tail -n1 $(JUNKRAT_RESPONSE)) != "Success" ]]; then exit 9; fi
+	wget --no-verbose --content-on-error -O- $(URL_PROD)
+	wget --no-verbose --content-on-error -O- $(URL_PROD_API)
