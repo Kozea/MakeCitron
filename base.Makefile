@@ -1,4 +1,4 @@
-VERSION := 1.2.7
+VERSION := 1.2.8
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # It should be used with the script present in exemple.Makefile
 # Use `-super` suffix to call for parent tasks
@@ -25,8 +25,8 @@ ifndef PYTHON_ONLY
 _NODE = 1
 endif
 
-
-# Environment checking
+check-enviro%: ## check-environ: Environment checking
+	$(LOG)
 ifdef _PYTHON
 ifeq (, $(PIPENV))
 ERROR := $(shell echo -e "\e[1;35m⚠  \e[1;31mERROR: \e[0;35mYou must have pipenv installed\e[0m")
@@ -130,7 +130,7 @@ install-d%: ## install-db: Install database if any
 pre-instal%:  ## pre-install: Run pre install hooks
 	$(LOG)
 
-instal%: least-specific-install pre-install install-pre-commit ## install: Install project dependencies for development
+instal%: least-specific-install check-environ pre-install install-pre-commit ## install: Install project dependencies for development
 	$(LOG)
 ifdef _NODE
 	$(MAKE) install-node
