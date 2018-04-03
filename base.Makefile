@@ -1,4 +1,4 @@
-VERSION := 1.2.12
+VERSION := 1.2.13
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # It should be used with the script present in exemple.Makefile
 # Use `-super` suffix to call for parent tasks
@@ -345,8 +345,6 @@ deploy-tes%: ## deploy-test: Run test deployment for ci
 	$(LOG)
 	@echo "Communicating with Junkrat... (outing to $(JUNKRAT_RESPONSE))"
 	@wget --no-verbose --content-on-error -O- --header="Content-Type:application/json" --post-data=$(subst $(newline),,$(JUNKRAT_PARAMETERS)) $(JUNKRAT) | tee $(JUNKRAT_RESPONSE)
-ifneq ($(shell tail -n1 $(JUNKRAT_RESPONSE)),Success)
-	exit 9
-endif
+	if [[ $$(tail -n1 $(JUNKRAT_RESPONSE)) != "Success" ]]; then exit 9; fi
 	wget --no-verbose --content-on-error -O- $(URL_TEST)
 	wget --no-verbose --content-on-error -O- $(URL_TEST_API)
