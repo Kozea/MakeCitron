@@ -1,4 +1,4 @@
-VERSION := 1.2.8
+VERSION := 1.2.9
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # It should be used with the script present in exemple.Makefile
 # Use `-super` suffix to call for parent tasks
@@ -29,15 +29,12 @@ check-enviro%: ## check-environ: Environment checking
 	$(LOG)
 ifdef _PYTHON
 ifeq (, $(PIPENV))
-ERROR := $(shell echo -e "\e[1;35m⚠  \e[1;31mERROR: \e[0;35mYou must have pipenv installed\e[0m")
-$(error $(ERROR))
+	$(error $(shell echo -e "\e[1;35m⚠  \e[1;31mERROR: \e[0;35mYou must have pipenv installed\e[0m"))
 endif
 endif
-
 ifdef _NODE
 ifeq (, $(NPM))
-ERROR := $(shell echo -e "\e[1;35m⚠  \e[1;31mERROR: \e[0;35mYou must have yarn installed\e[0m")
-$(error $(ERROR))
+	$(error $(shell echo -e "\e[1;35m⚠  \e[1;31mERROR: \e[0;35mYou must have yarn installed\e[0m"))
 endif
 endif
 
