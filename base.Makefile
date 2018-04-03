@@ -1,4 +1,4 @@
-VERSION := 1.2.11
+VERSION := 1.2.12
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # It should be used with the script present in exemple.Makefile
 # Use `-super` suffix to call for parent tasks
@@ -319,10 +319,10 @@ endif
 endif
 
 
-BRANCH_NAME := $(shell echo $(CI_COMMIT_REF_NAME) | tr -cd "[[:alnum:]]")
+BRANCH_NAME = $(shell echo $(CI_COMMIT_REF_NAME) | tr -cd "[[:alnum:]]")
 URL_TEST ?= https://test-$(CI_PROJECT_NAME)-$(BRANCH_NAME).kozea.fr
 URL_TEST_API ?= https://test-$(CI_PROJECT_NAME)-$(BRANCH_NAME).kozea.fr/api
-JUNKRAT_RESPONSE := /tmp/$(CI_PROJECT_NAME)-$(CI_COMMIT_REF_NAME).log
+JUNKRAT_RESPONSE = /tmp/$(CI_PROJECT_NAME)-$(CI_COMMIT_REF_NAME).log
 define newline
 
 
@@ -343,7 +343,7 @@ endef
 
 deploy-tes%: ## deploy-test: Run test deployment for ci
 	$(LOG)
-	@echo "Communicating with Junkrat..."
+	@echo "Communicating with Junkrat... (outing to $(JUNKRAT_RESPONSE))"
 	@wget --no-verbose --content-on-error -O- --header="Content-Type:application/json" --post-data=$(subst $(newline),,$(JUNKRAT_PARAMETERS)) $(JUNKRAT) | tee $(JUNKRAT_RESPONSE)
 ifneq ($(shell tail -n1 $(JUNKRAT_RESPONSE)),Success)
 	exit 9
