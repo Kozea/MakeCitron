@@ -71,7 +71,7 @@ pre-commi%: ## pre-commit: Target to run at pre-commit
 #
 DOT_FILES ?= MakeCitron.Makefile .sass-lint.yml
 PYTHON_DOT_FILES ?= .isort.cfg .style.yapf setup.cfg
-NODE_DOT_FILES ?= .eslintrc.json .prettierrc jsconfig.json
+NODE_DOT_FILES ?= .eslintrc.json .eslintignore .prettierrc .prettierignore jsconfig.json
 ifdef _NODE
 	DOT_FILES += $(NODE_DOT_FILES)
 endif
@@ -227,7 +227,7 @@ fix-pytho%: ## fix-python: Fix python source format
 
 fix-nod%: ## fix-node: Fix node source format
 	$(LOG)
-	prettier --write '{,lib/**/}*.js?(x)'
+	prettier --write
 
 fi%: least-specific-fix install ## fix: Fix all source format
 	$(LOG)
