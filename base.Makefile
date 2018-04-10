@@ -1,4 +1,4 @@
-VERSION := 1.3.1
+VERSION := 1.3.2
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # It should be used with the script present in exemple.Makefile
 # Use `-super` suffix to call for parent tasks
@@ -227,7 +227,7 @@ fix-pytho%: ## fix-python: Fix python source format
 
 fix-nod%: ## fix-node: Fix node source format
 	$(LOG)
-	prettier --write
+	prettier --write '{,lib/**/}*.js?(x)'
 
 fi%: least-specific-fix install ## fix: Fix all source format
 	$(LOG)
