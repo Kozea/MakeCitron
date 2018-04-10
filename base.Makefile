@@ -345,15 +345,15 @@ endef
 deploy-tes%: ## deploy-test: Run test deployment for ci
 	$(LOG)
 	@echo "Communicating with Junkrat..."
-	@wget --no-verbose --content-on-error -O- --header="Content-Type:application/json" --post-data=$(subst $(newline),,$(JUNKRAT_PARAMETERS)) $(JUNKRAT) | tee $(JUNKRAT_RESPONSE)
+	@wget -nv --content-on-error -O- --header="Content-Type:application/json" --post-data=$(subst $(newline),,$(JUNKRAT_PARAMETERS)) $(JUNKRAT) | tee $(JUNKRAT_RESPONSE)
 	if [[ $$(tail -n1 $(JUNKRAT_RESPONSE)) != "Success" ]]; then exit 9; fi
-	wget --no-verbose --content-on-error -O- $(URL_TEST)
-	wget --no-verbose --content-on-error -O- $(URL_TEST_API)
+	wget -nv --content-on-error -O- $(URL_TEST)
+	wget -nv --content-on-error -O- $(URL_TEST_API)
 
 deploy-pro%: ## deploy-prod: Run prod deployment for ci
 	$(LOG)
 	@echo "Communicating with Junkrat..."
-	@wget --no-verbose --content-on-error -O- --header="Content-Type:application/json" --post-data=$(subst $(newline),,$(JUNKRAT_PARAMETERS)) $(JUNKRAT) | tee $(JUNKRAT_RESPONSE)
+	@wget -nv --content-on-error -O- --header="Content-Type:application/json" --post-data=$(subst $(newline),,$(JUNKRAT_PARAMETERS)) $(JUNKRAT) | tee $(JUNKRAT_RESPONSE)
 	if [[ $$(tail -n1 $(JUNKRAT_RESPONSE)) != "Success" ]]; then exit 9; fi
-	wget --no-verbose --content-on-error -O- $(URL_PROD)
-	wget --no-verbose --content-on-error -O- $(URL_PROD_API)
+	wget -nv --content-on-error -O- $(URL_PROD)
+	wget -nv --content-on-error -O- $(URL_PROD_API)
