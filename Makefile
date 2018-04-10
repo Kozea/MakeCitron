@@ -1,7 +1,9 @@
+include config.Makefile
+-include config.custom.Makefile
 include base.Makefile
 $(info $(INFO))
 
-test:
+lint:
 	@echo It works!
 .DEFAULT_GOAL := test
 
