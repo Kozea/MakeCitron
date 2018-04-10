@@ -1,4 +1,4 @@
-VERSION := 1.3.2
+VERSION := 1.3.3
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # It should be used with the script present in exemple.Makefile
 # Use `-super` suffix to call for parent tasks
@@ -78,7 +78,7 @@ endif
 ifdef _PYTHON
 	DOT_FILES += $(PYTHON_DOT_FILES)
 endif
-install-dot-files:
+install-dot-files: ## install-dot-files: Install dot files in project from MakeCitron dots dir
 	$(LOG)
 	@wget -N -nv $(foreach dot, $(DOT_FILES), $(MAKE_CITRON_ROOT)dots/$(dot))
 
