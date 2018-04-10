@@ -1,4 +1,4 @@
-VERSION := 1.2.15
+VERSION := 1.3.0
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # It should be used with the script present in exemple.Makefile
 # Use `-super` suffix to call for parent tasks
@@ -69,6 +69,20 @@ pre-commi%: ## pre-commit: Target to run at pre-commit
 #
 # Installing
 #
+DOT_FILES ?= MakeCitron.Makefile .sass-lint.yml
+PYTHON_DOT_FILES ?= .isort.cfg .style.yapf setup.cfg
+NODE_DOT_FILES ?= .eslintrc.json .prettierrc jsconfig.json
+ifdef _NODE
+	DOT_FILES += $(NODE_DOT_FILES)
+endif
+ifdef _PYTHON
+	DOT_FILES += $(PYTHON_DOT_FILES)
+endif
+install-dot-files:
+	$(LOG)
+	@wget -N -nv $(foreach dot, $(DOT_FILES), $(MAKE_CITRON_ROOT)dots/$(dot))
+
+
 install-pre-commit: ## install-pre-commit: Install pre-commit hook
 	$(LOG)
 	@# TODO: Find a better solution to not do this every run
