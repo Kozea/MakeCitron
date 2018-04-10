@@ -9,7 +9,7 @@ ifeq ($(MAKELEVEL), 0)
 # When make 4.2 will be available on debian
 # RV := $(shell wget -nv -O $(BASENAME) $(BASEROOT)$(BASENAME) 2>&1)
 # ifeq (0,$(.SHELLSTATUS))
-RV := $(shell wget -q -O $(MAKE_CITRON_NAME) $(MAKE_CITRON_ROOT)$(MAKE_CITRON_NAME) || echo 'FAIL')
+RV := $(shell wget -N -q -O $(MAKE_CITRON_NAME) $(MAKE_CITRON_ROOT)$(MAKE_CITRON_NAME) || echo 'FAIL')
 ifeq (,$(RV))
 include $(MAKE_CITRON_NAME)
 else
