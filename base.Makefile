@@ -1,19 +1,32 @@
-VERSION := 1.3.3
+VERSION := 1.3.4
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # It should be used with the script present in exemple.Makefile
 # Use `-super` suffix to call for parent tasks
 # NB: Targets that match less specifically must have dependencies otherwise the more specific ones are ignored
 #     Therefore a least-specific target is used as dependency
 # It supports NODE_ONLY and PYTHON_ONLY configuration variables
-INFO := $(shell echo -e "\t\e[0;93m🍋  \e[1;37mMake\e[1;33mCitron \e[1;37m$(VERSION)\t\t\e[0;37m<$(MAKECMDGOALS)>\e[1;33m@\e[0;37m$(shell hostname)\e[0m")
+COLOR := $(shell [ -t 0 ] && echo 'yes')
+SPACE := $(shell echo -e "\t")
+ifdef COLOR
+C_LEMON := $(shell echo -e "\e[93m")
+C_RED := $(shell echo -e "\e[31m")
+C_YELLOW := $(shell echo -e "\e[33m")
+C_PINK := $(shell echo -e "\e[35m")
+C_BLUE := $(shell echo -e "\e[36m")
+C_WHITE := $(shell echo -e "\e[37m")
+C_BOLD := $(shell echo -e "\e[1m")
+C_NORMAL := $(shell echo -e "\e[m")
+endif
+INFO := $(SPACE)$(C_LEMON)🍋  $(C_BOLD)$(C_WHITE)Make$(C_YELLOW)Citron $(C_WHITE)$(VERSION)$(SPACE)$(SPACE)$(C_NORMAL)$(C_WHITE)<$(MAKECMDGOALS)>$(C_BOLD)$(C_YELLOW)@$(C_NORMAL)$(C_WHITE)$(shell hostname)$(C_NORMAL)
 
 # Use bash
 SHELL := /bin/bash
 
+
 # Set PATH to node and python binaries
 export PATH := ./node_modules/.bin:.venv/bin:$(PATH)
 
-LOG = @echo -e "\n  \e[1;35m🞋  \e[1;37m$(@:$*=)\e[1;31m$* \e[1;36m$(shell seq -s"➘" $$((MAKELEVEL + 1)) | tr -d '[:digit:]')\e[0m"
+LOG = @echo -e "\n    $(C_BOLD)$(C_PINK)🞋  $(C_WHITE)$(@:$*=)$(C_RED)$* $(C_BLUE)$(shell seq -s"➘" $$((MAKELEVEL + 1)) | tr -d '[:digit:]')$(C_NORMAL)"
 
 _PYTHON =
 _NODE =
@@ -28,12 +41,12 @@ check-enviro%: ## check-environ: Environment checking
 	$(LOG)
 ifdef _PYTHON
 ifeq (, $(PIPENV))
-	$(error $(shell echo -e "\e[1;35m⚠  \e[1;31mERROR: \e[0;35mYou must have pipenv installed\e[0m"))
+	$(error $(shell echo -e "$(C_BOLD)$(C_PINK)⚠  $(C_RED)ERROR: $(C_NORMAL)$(C_RED)You must have pipenv installed$(C_NORMAL)"))
 endif
 endif
 ifdef _NODE
 ifeq (, $(NPM))
-	$(error $(shell echo -e "\e[1;35m⚠  \e[1;31mERROR: \e[0;35mYou must have yarn installed\e[0m"))
+	$(error $(shell echo -e "$(C_BOLD)$(C_PINK)⚠  $(C_RED)ERROR: $(C_NORMAL)$(C_RED)You must have yarn installed$(C_NORMAL)"))
 endif
 endif
 
@@ -43,7 +56,7 @@ endif
 hel%: ## help: Show this help message. (Default)
 	$(LOG)
 	@echo -e "usage: make [target] ...\n\ntargets:\n	"
-	@grep -Eh '^.+:\ .*##\ .+' $(MAKEFILE_LIST) | cut -d '#' -f '3-' | sed -e 's/^\(.*\):\(.*\)/\o033[1;35m\ \1\o033[0;37m:\2\o033[0m/' | column -t -s ':'
+	@grep -Eh '^.+:\ .*##\ .+' $(MAKEFILE_LIST) | cut -d '#' -f '3-' | sed -e 's/^\(.*\):\(.*\)/$(C_BOLD)$(C_PINK)\ \1$(C_WHITE):\2$(C_NORMAL)/' | column -t -s ':'
 .DEFAULT_GOAL := help
 
 least-specific%:
