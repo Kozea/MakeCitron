@@ -1,4 +1,4 @@
-VERSION := 1.3.0
+VERSION := 1.3.1
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # It should be used with the script present in exemple.Makefile
 # Use `-super` suffix to call for parent tasks
