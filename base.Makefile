@@ -227,7 +227,7 @@ fix-pytho%: ## fix-python: Fix python source format
 
 fix-nod%: ## fix-node: Fix node source format
 	$(LOG)
-	prettier --write '{,lib/tests/**/,lib/frontend/src/**/}*.js?(x)'
+	prettier --write '{,lib/**/}*.js?(x)'
 
 fi%: least-specific-fix install ## fix: Fix all source format
 	$(LOG)
