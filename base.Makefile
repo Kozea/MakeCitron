@@ -1,4 +1,4 @@
-VERSION := 1.3.4
+VERSION := 1.4.0
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # Your project Makefile must import `MakeCitron.Makefile` first
 # Use `-super` suffix to call for parent tasks
@@ -10,6 +10,7 @@ SPACE := $(shell echo -e "\t")
 ifdef COLOR
 C_LEMON := $(shell echo -e "\e[93m")
 C_RED := $(shell echo -e "\e[31m")
+C_GREEN := $(shell echo -e "\e[32m")
 C_YELLOW := $(shell echo -e "\e[33m")
 C_PINK := $(shell echo -e "\e[35m")
 C_BLUE := $(shell echo -e "\e[36m")
@@ -74,9 +75,49 @@ en%: ## env: Run ${RUN} with Makefile environment
 al%: install build ## all: Install then build
 	$(LOG)
 
+
+ifdef _NODE
+STAGED_NODE_FILES = $(shell git diff --cached --name-only --diff-filter=ACM "*.js" "*.jsx" | tr '\n' ' ')
+PARTIALLY_STAGED_NODE_FILES = $(shell git diff --name-only $(STAGED_NODE_FILES))
+ifneq ($(PARTIALLY_STAGED_NODE_FILES),)
+PARTIALLY_STAGED_FILES += $(PARTIALLY_STAGED_NODE_FILES)
+endif
+endif
+
+ifdef _PYTHON
+STAGED_PYTHON_FILES = $(shell git diff --cached --name-only --diff-filter=ACM "*.py" | tr '\n' ' ')
+PARTIALLY_STAGED_PYTHON_FILES = $(shell git diff --name-only $(STAGED_PYTHON_FILES))
+ifneq ($(PARTIALLY_STAGED_PYTHON_FILES),)
+PARTIALLY_STAGED_FILES += $(PARTIALLY_STAGED_PYTHON_FILES)
+endif
+endif
+
 pre-commi%: ## pre-commit: Target to run at pre-commit
 	$(LOG)
-	$(MAKE) fix
+ifdef PARTIALLY_STAGED_FILES
+	@echo $(C_BOLD)$(C_YELLOW)You have unstaged changes in the following staged files:$(C_NORMAL)
+	@$(foreach file, $(PARTIALLY_STAGED_FILES), echo "  $(C_BOLD)$(C_BLUE)*$(C_NORMAL) $(file)";)
+	@echo
+	@echo Please stash your unstaged changes with $(C_BOLD)git stash -k$(C_NORMAL) and try again.
+	@echo $(C_RED)Autoformating failed, aborting commit$(C_NORMAL)
+	@echo
+	@exit 1
+endif
+ifdef STAGED_PYTHON_FILES
+	@yapf -vv -p -i -r $(STAGED_PYTHON_FILES)
+endif
+ifdef STAGED_NODE_FILES
+	@prettier --write $(STAGED_NODE_FILES)
+endif
+	@FORMATTED_FILES=`git diff --name-only $(STAGED_PYTHON_FILES) $(STAGED_NODE_FILES)`; if [[ "$$FORMATTED_FILES" ]]; then \
+		echo; \
+		echo "$(C_BOLD)$(C_YELLOW)Some files have been auto-formatted. Please review these files and add them to the commit: $(C_NORMAL)$(C_BLUE)"; \
+		for file in $${FORMATTED_FILES[@]}; do \
+			echo "  $(C_BOLD)$(C_GREEN)+$(C_NORMAL) $${file}"; \
+		done; \
+		echo $(C_NORMAL); \
+		exit 1; \
+	fi
 	$(MAKE) lint
 
 #
@@ -86,10 +127,10 @@ DOT_FILES ?= MakeCitron.Makefile .sass-lint.yml
 PYTHON_DOT_FILES ?= .isort.cfg .style.yapf setup.cfg
 NODE_DOT_FILES ?= .eslintrc.json .eslintignore .prettierrc .prettierignore jsconfig.json
 ifdef _NODE
-	DOT_FILES += $(NODE_DOT_FILES)
+DOT_FILES += $(NODE_DOT_FILES)
 endif
 ifdef _PYTHON
-	DOT_FILES += $(PYTHON_DOT_FILES)
+DOT_FILES += $(PYTHON_DOT_FILES)
 endif
 install-dot-files: ## install-dot-files: Install dot files in project from MakeCitron dots dir
 	$(LOG)
