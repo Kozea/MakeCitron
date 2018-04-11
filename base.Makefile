@@ -1,6 +1,6 @@
 VERSION := 1.3.4
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
-# It should be used with the script present in exemple.Makefile
+# Your project Makefile must import `MakeCitron.Makefile` first
 # Use `-super` suffix to call for parent tasks
 # NB: Targets that match less specifically must have dependencies otherwise the more specific ones are ignored
 #     Therefore a least-specific target is used as dependency
