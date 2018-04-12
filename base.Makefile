@@ -1,4 +1,4 @@
-VERSION := 1.4.0
+VERSION := 1.4.1
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # Your project Makefile must import `MakeCitron.Makefile` first
 # Use `-super` suffix to call for parent tasks
@@ -77,23 +77,29 @@ al%: install build ## all: Install then build
 
 
 ifdef _NODE
-STAGED_NODE_FILES = $(shell git diff --cached --name-only --diff-filter=ACM "*.js" "*.jsx" | tr '\n' ' ')
-PARTIALLY_STAGED_NODE_FILES = $(shell git diff --name-only $(STAGED_NODE_FILES))
+STAGED_NODE_FILES := $(shell git diff --cached --name-only --diff-filter=ACM "*.js" "*.jsx" | tr '\n' ' ')
+ifneq ($(STAGED_NODE_FILES),)
+PARTIALLY_STAGED_NODE_FILES := $(shell git diff --name-only $(STAGED_NODE_FILES))
 ifneq ($(PARTIALLY_STAGED_NODE_FILES),)
 PARTIALLY_STAGED_FILES += $(PARTIALLY_STAGED_NODE_FILES)
 endif
 endif
+endif
 
 ifdef _PYTHON
-STAGED_PYTHON_FILES = $(shell git diff --cached --name-only --diff-filter=ACM "*.py" | tr '\n' ' ')
-PARTIALLY_STAGED_PYTHON_FILES = $(shell git diff --name-only $(STAGED_PYTHON_FILES))
+STAGED_PYTHON_FILES := $(shell git diff --cached --name-only --diff-filter=ACM "*.py" | tr '\n' ' ')
+ifneq ($(STAGED_PYTHON_FILES),)
+PARTIALLY_STAGED_PYTHON_FILES := $(shell git diff --name-only $(STAGED_PYTHON_FILES))
 ifneq ($(PARTIALLY_STAGED_PYTHON_FILES),)
 PARTIALLY_STAGED_FILES += $(PARTIALLY_STAGED_PYTHON_FILES)
+endif
 endif
 endif
 
 pre-commi%: ## pre-commit: Target to run at pre-commit
 	$(LOG)
+# If there are no interesting staged files, do nothing
+ifneq ($(STAGED_PYTHON_FILES)$(STAGED_NODE_FILES),)
 ifdef PARTIALLY_STAGED_FILES
 	@echo $(C_BOLD)$(C_YELLOW)You have unstaged changes in the following staged files:$(C_NORMAL)
 	@$(foreach file, $(PARTIALLY_STAGED_FILES), echo "  $(C_BOLD)$(C_BLUE)*$(C_NORMAL) $(file)";)
@@ -103,10 +109,10 @@ ifdef PARTIALLY_STAGED_FILES
 	@echo
 	@exit 1
 endif
-ifdef STAGED_PYTHON_FILES
+ifneq (,$(STAGED_PYTHON_FILES))
 	@yapf -vv -p -i -r $(STAGED_PYTHON_FILES)
 endif
-ifdef STAGED_NODE_FILES
+ifneq (,$(STAGED_NODE_FILES))
 	@prettier --write $(STAGED_NODE_FILES)
 endif
 	@FORMATTED_FILES=`git diff --name-only $(STAGED_PYTHON_FILES) $(STAGED_NODE_FILES)`; if [[ "$$FORMATTED_FILES" ]]; then \
@@ -119,6 +125,8 @@ endif
 		exit 1; \
 	fi
 	$(MAKE) lint
+endif
+
 
 #
 # Installing
