@@ -1,4 +1,4 @@
-VERSION := 1.4.1
+VERSION := 1.4.2
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # Your project Makefile must import `MakeCitron.Makefile` first
 # Use `-super` suffix to call for parent tasks
@@ -310,7 +310,7 @@ check-pytho%: ## check-python: Run python tests
 check-nod%: ## check-node: Run node tests
 	$(LOG)
 ifeq (,$(DEBUG_NODE))
-	jest --no-cache
+	jest --no-cache --coverage
 else
 	inspect $(NODE_MODULES)/.bin/jest --runInBand --env jest-environment-node-debug
 endif
