@@ -1,4 +1,4 @@
-VERSION := 1.4.2
+VERSION := 1.4.3
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # Your project Makefile must import `MakeCitron.Makefile` first
 # Use `-super` suffix to call for parent tasks
@@ -176,6 +176,7 @@ yarn.lock: node_modules package.json
 	$(LOG)
 	yarn install --production=false --check-files
 	touch -mr $(shell ls -Atd $? | head -1) $@
+	rm -fr .eslintcache
 
 node_modules:
 	$(LOG)
@@ -185,6 +186,7 @@ Pipfile.lock: .venv Pipfile
 	$(LOG)
 	$(PIPENV) install --dev
 	touch -mr $(shell ls -Atd $? | head -1) $@
+	rm -fr .pytest_cache
 
 .venv:
 	$(LOG)
@@ -248,7 +250,11 @@ clean-serve%: ## clean-server: Clean built server assets
 	$(LOG)
 	rm -fr dist
 
-clean-instal%: clean ## clean-install: Clean all installed dependencies
+clean-lint-cach%:
+	rm -fr .eslintcache
+	rm -fr .pytest_cache
+
+clean-instal%: clean clean-lint-cache ## clean-install: Clean all installed dependencies
 	$(LOG)
 ifdef _PYTHON
 	rm -fr $(VENV)
