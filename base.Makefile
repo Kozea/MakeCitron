@@ -1,4 +1,4 @@
-VERSION := 1.4.3
+VERSION := 1.4.4
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # Your project Makefile must import `MakeCitron.Makefile` first
 # Use `-super` suffix to call for parent tasks
@@ -291,6 +291,7 @@ endif
 
 fix-pytho%: ## fix-python: Fix python source format
 	$(LOG)
+	isort -rc lib
 	yapf -vv -p -i -r lib
 
 fix-nod%: ## fix-node: Fix node source format
