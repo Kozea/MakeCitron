@@ -1,4 +1,4 @@
-VERSION := 1.4.4
+VERSION := 1.4.5
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # Your project Makefile must import `MakeCitron.Makefile` first
 # Use `-super` suffix to call for parent tasks
@@ -110,6 +110,7 @@ ifdef PARTIALLY_STAGED_FILES
 	@exit 1
 endif
 ifneq (,$(STAGED_PYTHON_FILES))
+	@isort -rc $(STAGED_PYTHON_FILES)
 	@yapf -vv -p -i -r $(STAGED_PYTHON_FILES)
 endif
 ifneq (,$(STAGED_NODE_FILES))
