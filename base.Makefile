@@ -1,4 +1,4 @@
-VERSION := 1.4.5
+VERSION := 1.4.6
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # Your project Makefile must import `MakeCitron.Makefile` first
 # Use `-super` suffix to call for parent tasks
@@ -111,7 +111,7 @@ ifdef PARTIALLY_STAGED_FILES
 endif
 ifneq (,$(STAGED_PYTHON_FILES))
 	@isort -rc $(STAGED_PYTHON_FILES)
-	@yapf -vv -p -i -r $(STAGED_PYTHON_FILES)
+	@black $(STAGED_PYTHON_FILES)
 endif
 ifneq (,$(STAGED_NODE_FILES))
 	@prettier --write $(STAGED_NODE_FILES)
@@ -133,7 +133,7 @@ endif
 # Installing
 #
 DOT_FILES ?= MakeCitron.Makefile .sass-lint.yml
-PYTHON_DOT_FILES ?= .isort.cfg .style.yapf setup.cfg
+PYTHON_DOT_FILES ?= .isort.cfg pyproject.toml setup.cfg
 NODE_DOT_FILES ?= .eslintrc.json .eslintignore .prettierrc .prettierignore jsconfig.json
 ifdef _NODE
 DOT_FILES += $(NODE_DOT_FILES)
@@ -293,7 +293,7 @@ endif
 fix-pytho%: ## fix-python: Fix python source format
 	$(LOG)
 	isort -rc lib
-	yapf -vv -p -i -r lib
+	black lib
 
 fix-nod%: ## fix-node: Fix node source format
 	$(LOG)
