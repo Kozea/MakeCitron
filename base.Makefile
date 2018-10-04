@@ -1,4 +1,4 @@
-VERSION := 1.4.6
+VERSION := 1.4.7
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # Your project Makefile must import `MakeCitron.Makefile` first
 # Use `-super` suffix to call for parent tasks
@@ -222,10 +222,9 @@ full-instal%: ## full-install: Clean everything and install again
 #
 # Upgrading
 #
-upgrade-pytho%: ## upgrade-python: Upgrade locked python dependencies
+upgrade-pytho%: ## upgrade-python: Upgrade locked python dependencies (or ${PKG})
 	$(LOG)
-	$(PIPENV) update
-	$(PIPENV) lock  # Maybe remove this later
+	$(PIPENV) update --pre ${PKG} # black is pre-release for now
 	$(PIPENV) install
 
 upgrade-nod%: ## upgrade-node: Upgrade interactively locked node dependencies
