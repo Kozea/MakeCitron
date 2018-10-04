@@ -1,5 +1,6 @@
 [tool.black]
 line-length = 79
+skip-string-normalization = true
 py36 = true
 include = '\.py$'
 exclude = '''
@@ -15,4 +16,3 @@ exclude = '''
   | dist
 )/
 '''
-skip-string-normalization = true
