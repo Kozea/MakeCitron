@@ -1,4 +1,4 @@
-VERSION := 1.4.12
+VERSION := 1.4.13
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # Your project Makefile must import `MakeCitron.Makefile` first
 # Use `-super` suffix to call for parent tasks
@@ -173,27 +173,14 @@ ifdef _PYTHON
 	$(MAKE) install-python-prod
 endif
 
-yarn.lock: node_modules package.json
+install-nod%: ## install-node: Install node dependencies for development
 	$(LOG)
 	yarn install --production=false --check-files
-	touch -mr $(shell ls -Atd $? | head -1) $@
 	rm -fr .eslintcache
 
-node_modules:
-	$(LOG)
-	mkdir -p $@
-
-Pipfile.lock: Pipfile .venv
+install-pytho%: ## install-python: Install python dependencies for development
 	$(LOG)
 	$(PIPENV) install --dev
-	touch -mr $(shell ls -Atd $? | head -1) $@
-	rm -fr .pytest_cache
-
-install-nod%: yarn.lock ## install-node: Install node dependencies for development
-	$(LOG)
-
-install-pytho%: Pipfile.lock ## install-python: Install python dependencies for development
-	$(LOG)
 
 install-d%: ## install-db: Install database if any
 	$(LOG)
@@ -294,7 +281,7 @@ fix-nod%: ## fix-node: Fix node source format
 	$(LOG)
 	prettier --write '{,lib/**/}*.js?(x)'
 
-fi%: least-specific-fix install ## fix: Fix all source format
+fi%: least-specific-fix ## fix: Fix all source format
 	$(LOG)
 ifdef _NODE
 	$(MAKE) fix-node
@@ -348,7 +335,7 @@ build-serve%: clean-server ## build-server: Build node server files
 	$(LOG)
 	WEBPACK_ENV=server NODE_ENV=production webpack
 
-buil%: least-specific-build install ## build: Build node files
+buil%: least-specific-build ## build: Build node files
 	$(LOG)
 	$(MAKE) build-server
 	$(MAKE) build-client
@@ -372,7 +359,7 @@ serve-node-clien%: ## serve-node-client: Run node development files
 	$(LOG)
 	WEBPACK_ENV=browser NODE_ENV=development webpack-dev-server
 
-serv%: least-specific-serve clean install ## serve: Run all servers in development
+serv%: least-specific-serve clean ## serve: Run all servers in development
 	$(LOG)
 ifdef NODE_ONLY
 	$(MAKE) P="serve-node-client serve-node-server" make-p
@@ -384,7 +371,7 @@ else
 endif
 endif
 
-ru%: install ## run: Run built production servers
+ru%: ## run: Run built production servers
 	$(LOG)
 ifdef NODE_ONLY
 	MOCK_NGINX=y $(MAKE) serve-node
