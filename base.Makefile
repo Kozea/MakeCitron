@@ -1,4 +1,4 @@
-VERSION := 1.4.9
+VERSION := 1.4.10
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # Your project Makefile must import `MakeCitron.Makefile` first
 # Use `-super` suffix to call for parent tasks
@@ -191,7 +191,7 @@ Pipfile.lock: .venv Pipfile
 
 .venv:
 	$(LOG)
-ifdef PYTHON_VERSION
+ifneq (,$(PYTHON_VERSION))
 	$(PIPENV) --python $(PYTHON_VERSION)
 endif
 
