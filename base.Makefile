@@ -1,4 +1,4 @@
-VERSION := 1.4.11
+VERSION := 1.4.12
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # Your project Makefile must import `MakeCitron.Makefile` first
 # Use `-super` suffix to call for parent tasks
@@ -183,7 +183,7 @@ node_modules:
 	$(LOG)
 	mkdir -p $@
 
-Pipfile.lock: Pipfile
+Pipfile.lock: Pipfile .venv
 	$(LOG)
 	$(PIPENV) install --dev
 	touch -mr $(shell ls -Atd $? | head -1) $@
