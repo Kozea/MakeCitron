@@ -1,4 +1,4 @@
-VERSION := 1.4.13
+VERSION := 1.4.14
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # Your project Makefile must import `MakeCitron.Makefile` first
 # Use `-super` suffix to call for parent tasks
@@ -353,7 +353,7 @@ serve-nod%: ## serve-node: Run build node server
 
 serve-node-serve%: ## serve-node-server: Run node server
 	$(LOG)
-	WEBPACK_ENV=server NODE_ENV=development webpack
+	WEBPACK_ENV=server NODE_ENV=development webpack --info-verbosity none
 
 serve-node-clien%: ## serve-node-client: Run node development files
 	$(LOG)
