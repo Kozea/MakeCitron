@@ -17,9 +17,8 @@ C_BLUE := $(shell echo -e "\e[36m")
 C_WHITE := $(shell echo -e "\e[37m")
 C_BOLD := $(shell echo -e "\e[1m")
 C_NORMAL := $(shell echo -e "\e[m")
-C_HALLOWEEN := $(shell echo -e "\e[38;5;208m")
 endif
-INFO := $(SPACE)$(C_HALLOWEEN)🎃  $(C_BOLD)$(C_WHITE)Make$(C_HALLOWEEN)Pumpkin $(C_WHITE)$(VERSION)$(SPACE)$(SPACE)$(C_NORMAL)$(C_WHITE)<$(MAKECMDGOALS)>$(C_BOLD)$(C_YELLOW)@$(C_NORMAL)$(C_WHITE)$(shell hostname)$(C_NORMAL)
+INFO := $(SPACE)$(C_LEMON)🍋  $(C_BOLD)$(C_WHITE)Make$(C_YELLOW)Citron $(C_WHITE)$(VERSION)$(SPACE)$(SPACE)$(C_NORMAL)$(C_WHITE)<$(MAKECMDGOALS)>$(C_BOLD)$(C_YELLOW)@$(C_NORMAL)$(C_WHITE)$(shell hostname)$(C_NORMAL)
 
 # Use bash
 SHELL := /bin/bash
