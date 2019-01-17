@@ -1,4 +1,4 @@
-VERSION := 1.4.14
+VERSION := 1.4.16
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # Your project Makefile must import `MakeCitron.Makefile` first
 # Use `-super` suffix to call for parent tasks
