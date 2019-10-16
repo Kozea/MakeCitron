@@ -25,7 +25,7 @@ SHELL := /bin/bash
 
 
 # Set PATH to node and python binaries
-export PATH := ./node_modules/.bin:.venv/bin:$(PATH)
+export PATH := ./node_modules/.bin:$(VENV)/bin:$(PATH)
 
 LOG = @echo -e "\n    $(C_BOLD)$(C_PINK)🞋  $(C_WHITE)$(@:$*=)$(C_RED)$* $(C_BLUE)$(shell seq -s"➘" $$((MAKELEVEL + 1)) | tr -d '[:digit:]')$(C_NORMAL)"
 
