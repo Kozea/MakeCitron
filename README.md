@@ -10,3 +10,30 @@ NB: Targets that match less specifically must have dependencies otherwise the mo
 Therefore a `least-specific` target is used as dependency
 
 It supports NODE_ONLY and PYTHON_ONLY configuration variables
+
+## Makefiles dependency graph
+
+```
+                   Project                 +    MakeCitron
+                   +-----+                 |    +--------+
+                                           |
+                                           |
+config.Makefile  (config.custom.Makefile)  |   base.Makefile
+                                           |
+      ^                 ^                  |        ^
+      |                 |                  |        |
+      | includes (1)    | includes (2)     |        |
+      |                 |                  |        |
+      +                 +                  |        |
+                                           |        |
+      MakeCitron.Makefile +----------------+--------+
+                              fetches and includes (3)
+               ^                           |
+               |                           |
+               | includes                  |
+               |                           |
+               +                           |
+                                           |
+            Makefile                       |
+                                           +
+```
