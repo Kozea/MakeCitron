@@ -1,4 +1,8 @@
 VERSION := 1.4.16
+
+# Use bash
+SHELL := /bin/bash
+
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # Your project Makefile must import `MakeCitron.Makefile` first
 # Use `-super` suffix to call for parent tasks
@@ -19,9 +23,6 @@ C_BOLD := $(shell echo -e "\e[1m")
 C_NORMAL := $(shell echo -e "\e[m")
 endif
 INFO := $(SPACE)$(C_LEMON)🍋  $(C_BOLD)$(C_WHITE)Make$(C_YELLOW)Citron $(C_WHITE)$(VERSION)$(SPACE)$(SPACE)$(C_NORMAL)$(C_WHITE)<$(MAKECMDGOALS)>$(C_BOLD)$(C_YELLOW)@$(C_NORMAL)$(C_WHITE)$(shell hostname)$(C_NORMAL)
-
-# Use bash
-SHELL := /bin/bash
 
 
 # Set PATH to node and python binaries
