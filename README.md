@@ -2,7 +2,7 @@
 
 This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 
-Your project Makefile must import `MakeCitron.Makefile` first
+Add `MakeCitron.Makefile` in your project then import it in the `Makefile`.
 
 Use `-super` suffix to call for parent tasks
 
