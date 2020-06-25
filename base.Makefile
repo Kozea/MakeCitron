@@ -32,6 +32,8 @@ VENV_BIN := $(VENV)/bin
 PIP ?= $(VENV_BIN)/pip
 PIP_COMPILE ?= $(VENV_BIN)/pip-compile --generate-hashes
 PIP_SYNC ?= $(VENV_BIN)/pip-sync
+### Ordered layers of requirements
+REQUIREMENTS_LAYERS ?= base dev
 ## Node env
 NODE_MODULES ?= $(PWD)/node_modules
 NPM ?= $(shell command -v yarn 2> /dev/null)
@@ -178,7 +180,7 @@ install-node-pro%: ## install-node-prod: Install node dependencies for productio
 
 install-python-pro%: install-python-venv ## install-python-prod: Install python dependencies for production
 	$(LOG)
-	$(PIP_SYNC) requirements/base.txt
+	$(PIP_SYNC) $(patsubst %, requirements/%.txt, $(word 1, $(REQUIREMENTS_LAYERS)))
 
 install-pro%: ## install-prod: Install project dependencies for production
 	$(LOG)
@@ -196,9 +198,8 @@ install-nod%: ## install-node: Install node dependencies for development
 
 install-pytho%: install-python-venv ## install-python: Install python dependencies for development
 	$(LOG)
-	$(PIP_COMPILE) --generate-hashes requirements/base.in
-	$(PIP_COMPILE) --generate-hashes requirements/dev.in
-	$(PIP_SYNC) requirements/base.txt requirements/dev.txt
+	$(foreach req, $(REQUIREMENTS_LAYERS), $(PIP_COMPILE) requirements/$(req).in;)
+	$(PIP_SYNC) $(patsubst %, requirements/%.txt, $(REQUIREMENTS_LAYERS))
 
 install-d%: ## install-db: Install database if any
 	$(LOG)
@@ -231,9 +232,8 @@ UPGRADE_ARG := --upgrade
 endif
 upgrade-pytho%: ## upgrade-python: Upgrade locked python dependencies (or specific ones with PKG="foo bar")
 	$(LOG)
-	$(PIP_COMPILE) $(UPGRADE_ARG) requirements/base.in
-	$(PIP_COMPILE) $(UPGRADE_ARG) requirements/dev.in
-	$(PIP_SYNC) requirements/base.txt requirements/dev.txt
+	$(foreach req, $(REQUIREMENTS_LAYERS), $(PIP_COMPILE) $(UPGRADE_ARG) requirements/$(req).in;)
+	$(PIP_SYNC) $(patsubst %, requirements/%.txt, $(REQUIREMENTS_LAYERS))
 
 upgrade-nod%: ## upgrade-node: Upgrade interactively locked node dependencies
 	$(LOG)
