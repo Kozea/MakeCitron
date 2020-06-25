@@ -24,6 +24,17 @@ C_NORMAL := $(shell echo -e "\e[m")
 endif
 INFO := $(SPACE)$(C_LEMON)🍋  $(C_BOLD)$(C_WHITE)Make$(C_YELLOW)Citron $(C_WHITE)$(VERSION)$(SPACE)$(SPACE)$(C_NORMAL)$(C_WHITE)<$(MAKECMDGOALS)>$(C_BOLD)$(C_YELLOW)@$(C_NORMAL)$(C_WHITE)$(shell hostname)$(C_NORMAL)
 
+# Default values
+## Python env
+PYTHON ?= python
+VENV ?= $(PWD)/.venv
+VENV_BIN := $(VENV)/bin
+PIP ?= $(VENV_BIN)/pip
+PIP_COMPILE ?= $(VENV_BIN)/pip-compile --generate-hashes
+PIP_SYNC ?= $(VENV_BIN)/pip-sync
+## Node env
+NODE_MODULES ?= $(PWD)/node_modules
+NPM ?= $(shell command -v yarn 2> /dev/null)
 
 # Set PATH to node and python binaries
 export PATH := ./node_modules/.bin:$(VENV)/bin:$(PATH)
@@ -146,7 +157,6 @@ install-dot-files: ## install-dot-files: Install dot files in project from MakeC
 	$(LOG)
 	@wget -N -nv $(foreach dot, $(DOT_FILES), $(MAKE_CITRON_ROOT)dots/$(dot))
 
-
 install-pre-commit: ## install-pre-commit: Install pre-commit hook
 	$(LOG)
 	@# TODO: Find a better solution to not do this every run
@@ -157,13 +167,18 @@ else
 	@echo 'No .git/hooks directory found'
 endif
 
+install-python-ven%: ## install-python-venv: Create Python virtual environment
+	$(LOG)
+	test -d "$(VENV)" || $(PYTHON) -m venv "$(VENV)"
+	"$(PIP)" install pip-tools
+
 install-node-pro%: ## install-node-prod: Install node dependencies for production
 	$(LOG)
 	$(NPM) install --prod
 
-install-python-pro%: ## install-python-prod: Install python dependencies for production
+install-python-pro%: install-python-venv ## install-python-prod: Install python dependencies for production
 	$(LOG)
-	$(PIPENV) install --deploy
+	$(PIP_SYNC) requirements/base.txt
 
 install-pro%: ## install-prod: Install project dependencies for production
 	$(LOG)
@@ -179,9 +194,11 @@ install-nod%: ## install-node: Install node dependencies for development
 	yarn install --production=false --check-files
 	rm -fr .eslintcache
 
-install-pytho%: ## install-python: Install python dependencies for development
+install-pytho%: install-python-venv ## install-python: Install python dependencies for development
 	$(LOG)
-	$(PIPENV) install --dev
+	$(PIP_COMPILE) --generate-hashes requirements/base.in
+	$(PIP_COMPILE) --generate-hashes requirements/dev.in
+	$(PIP_SYNC) requirements/base.txt requirements/dev.txt
 
 install-d%: ## install-db: Install database if any
 	$(LOG)
@@ -206,10 +223,17 @@ full-instal%: ## full-install: Clean everything and install again
 #
 # Upgrading
 #
-upgrade-pytho%: ## upgrade-python: Upgrade locked python dependencies (or ${PKG})
+ifdef PKG
+UPGRADE_ARG := --upgrade-package "$(PKG)"
+UPGRADE_ARG := $(patsubst %,--upgrade-package %,$(PKG))
+else
+UPGRADE_ARG := --upgrade
+endif
+upgrade-pytho%: ## upgrade-python: Upgrade locked python dependencies (or specific ones with PKG="foo bar")
 	$(LOG)
-	$(PIPENV) update ${PKG}
-	$(PIPENV) install --dev
+	$(PIP_COMPILE) $(UPGRADE_ARG) requirements/base.in
+	$(PIP_COMPILE) $(UPGRADE_ARG) requirements/dev.in
+	$(PIP_SYNC) requirements/base.txt requirements/dev.txt
 
 upgrade-nod%: ## upgrade-node: Upgrade interactively locked node dependencies
 	$(LOG)
@@ -223,6 +247,7 @@ endif
 ifdef _PYTHON
 	$(MAKE) upgrade-python
 endif
+
 #
 # Cleaning
 #
