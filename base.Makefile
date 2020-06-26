@@ -25,14 +25,16 @@ endif
 INFO := $(SPACE)$(C_LEMON)🍋  $(C_BOLD)$(C_WHITE)Make$(C_YELLOW)Citron $(C_WHITE)$(VERSION)$(SPACE)$(SPACE)$(C_NORMAL)$(C_WHITE)<$(MAKECMDGOALS)>$(C_BOLD)$(C_YELLOW)@$(C_NORMAL)$(C_WHITE)$(shell hostname)$(C_NORMAL)
 
 # Default values
+# Could be overridden in `config.Makefile` or environment
 ## Python env
 PYTHON ?= python
 VENV ?= $(PWD)/.venv
-VENV_BIN := $(VENV)/bin
-PIP ?= $(VENV_BIN)/pip
-PIP_COMPILE ?= $(VENV_BIN)/pip-compile --generate-hashes
-PIP_SYNC ?= $(VENV_BIN)/pip-sync
-FLASK ?= $(VENV_BIN)/flask
+PYTHON_BINDIR ?= $(VENV)/bin
+### Commands (from `PYTHON_BINDIR` via `PATH` environment variable)
+FLASK ?= flask
+PIP ?= pip
+PIP_COMPILE ?= pip-compile --generate-hashes
+PIP_SYNC ?= pip-sync
 ### Ordered layers of requirements
 REQUIREMENTS_LAYERS ?= base dev
 ## Node env
@@ -40,7 +42,7 @@ NODE_MODULES ?= $(PWD)/node_modules
 NPM ?= $(shell command -v yarn 2> /dev/null)
 
 # Set PATH to node and python binaries
-export PATH := ./node_modules/.bin:$(VENV)/bin:$(PATH)
+export PATH := ./node_modules/.bin:$(PYTHON_BINDIR):$(PATH)
 
 LOG = @echo -e "\n    $(C_BOLD)$(C_PINK)🞋  $(C_WHITE)$(@:$*=)$(C_RED)$* $(C_BLUE)$(shell seq -s"➘" $$((MAKELEVEL + 1)) | tr -d '[:digit:]')$(C_NORMAL)"
 
