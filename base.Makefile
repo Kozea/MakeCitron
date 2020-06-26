@@ -32,6 +32,7 @@ VENV_BIN := $(VENV)/bin
 PIP ?= $(VENV_BIN)/pip
 PIP_COMPILE ?= $(VENV_BIN)/pip-compile --generate-hashes
 PIP_SYNC ?= $(VENV_BIN)/pip-sync
+FLASK ?= $(VENV_BIN)/flask
 ### Ordered layers of requirements
 REQUIREMENTS_LAYERS ?= base dev
 ## Node env
@@ -371,7 +372,7 @@ buil%: least-specific-build ## build: Build node files
 #
 serve-pytho%: ## serve-python: Run python server
 	$(LOG)
-	flask run --with-threads -h $(HOST) -p $(API_PORT)
+	$(FLASK) run --with-threads -h $(HOST) -p $(API_PORT)
 
 serve-nod%: ## serve-node: Run build node server
 	$(LOG)
