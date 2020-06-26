@@ -43,6 +43,7 @@ NPM ?= $(shell command -v yarn 2> /dev/null)
 NODE_BINDIR ?= $(shell $(NPM) bin)
 ### Commands (from `NODE_BINDIR` via `PATH` environment variable)
 JEST ?= jest
+PYTEST ?= pytest
 
 # Set PATH to node and python binaries
 export PATH := $(NODE_BINDIR):$(PYTHON_BINDIR):$(PATH)
@@ -293,7 +294,7 @@ clea%: least-specific-clean ## clean: Clean all built assets
 #
 lint-pytho%: ## lint-python: Lint python source
 	$(LOG)
-	py.test --flake8 --isort -m "flake8 or isort" lib --ignore=lib/frontend/static
+	$(PYTEST) --flake8 --isort -m "flake8 or isort" lib --ignore=lib/frontend/static
 
 lint-nod%: ## lint-node: Lint node source
 	$(LOG)
@@ -331,7 +332,7 @@ endif
 #
 check-pytho%: ## check-python: Run python tests
 	$(LOG)
-	FLASK_CONFIG=$(FLASK_TEST_CONFIG) py.test lib $(PYTEST_ARGS)
+	FLASK_CONFIG=$(FLASK_TEST_CONFIG) $(PYTEST) lib $(PYTEST_ARGS)
 
 check-nod%: ## check-node: Run node tests
 	$(LOG)
