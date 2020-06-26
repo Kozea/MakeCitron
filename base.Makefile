@@ -56,8 +56,8 @@ endif
 check-enviro%: ## check-environ: Environment checking
 	$(LOG)
 ifdef _PYTHON
-ifeq (, $(PIPENV))
-	$(error $(shell echo -e "$(C_BOLD)$(C_PINK)⚠  $(C_RED)ERROR: $(C_NORMAL)$(C_RED)You must have pipenv installed$(C_NORMAL)"))
+ifeq (, $(PIP))
+	$(error $(shell echo -e "$(C_BOLD)$(C_PINK)⚠  $(C_RED)ERROR: $(C_NORMAL)$(C_RED)You must have pip installed$(C_NORMAL)"))
 endif
 endif
 ifdef _NODE
@@ -338,7 +338,7 @@ ifdef _NODE
 	$(NPM) outdated ||:
 endif
 ifdef _PYTHON
-	$(PIPENV) update --outdated ||:
+	$(PIP) list --outdated ||:
 endif
 
 chec%: least-specific-check ## check: Run all test and output outdated dependencies
