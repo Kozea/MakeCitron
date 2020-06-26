@@ -40,9 +40,10 @@ REQUIREMENTS_LAYERS ?= base dev
 ## Node env
 NODE_MODULES ?= $(PWD)/node_modules
 NPM ?= $(shell command -v yarn 2> /dev/null)
+NODE_BINDIR ?= $(shell $(NPM) bin)
 
 # Set PATH to node and python binaries
-export PATH := ./node_modules/.bin:$(PYTHON_BINDIR):$(PATH)
+export PATH := $(NODE_BINDIR):$(PYTHON_BINDIR):$(PATH)
 
 LOG = @echo -e "\n    $(C_BOLD)$(C_PINK)🞋  $(C_WHITE)$(@:$*=)$(C_RED)$* $(C_BLUE)$(shell seq -s"➘" $$((MAKELEVEL + 1)) | tr -d '[:digit:]')$(C_NORMAL)"
 
