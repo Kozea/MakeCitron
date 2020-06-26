@@ -173,7 +173,9 @@ endif
 install-python-ven%: ## install-python-venv: Create Python virtual environment
 	$(LOG)
 	test -d "$(VENV)" || $(PYTHON) -m venv "$(VENV)"
-	"$(PIP)" install pip-tools
+	# `venv` could install outdated `pip` and `setuptools` versions
+	$(PIP) install --upgrade pip setuptools
+	$(PIP) install pip-tools
 
 install-node-pro%: ## install-node-prod: Install node dependencies for production
 	$(LOG)
@@ -233,6 +235,8 @@ UPGRADE_ARG := --upgrade
 endif
 upgrade-pytho%: ## upgrade-python: Upgrade locked python dependencies (or specific ones with PKG="foo bar")
 	$(LOG)
+	# Upgrade packages not directly managed by pip-tools
+	$(PIP) install --upgrade pip setuptools
 	$(foreach req, $(REQUIREMENTS_LAYERS), $(PIP_COMPILE) $(UPGRADE_ARG) requirements/$(req).in;)
 	$(PIP_SYNC) $(patsubst %, requirements/%.txt, $(REQUIREMENTS_LAYERS))
 
