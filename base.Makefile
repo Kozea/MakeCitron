@@ -41,6 +41,8 @@ REQUIREMENTS_LAYERS ?= base dev
 NODE_MODULES ?= $(PWD)/node_modules
 NPM ?= $(shell command -v yarn 2> /dev/null)
 NODE_BINDIR ?= $(shell $(NPM) bin)
+### Commands (from `NODE_BINDIR` via `PATH` environment variable)
+JEST ?= jest
 
 # Set PATH to node and python binaries
 export PATH := $(NODE_BINDIR):$(PYTHON_BINDIR):$(PATH)
@@ -334,9 +336,9 @@ check-pytho%: ## check-python: Run python tests
 check-nod%: ## check-node: Run node tests
 	$(LOG)
 ifeq (,$(DEBUG_NODE))
-	jest --no-cache --coverage
+	$(JEST) --no-cache --coverage
 else
-	inspect $(NODE_MODULES)/.bin/jest --runInBand --env jest-environment-node-debug
+	inspect $(JEST) --runInBand --env jest-environment-node-debug
 endif
 
 check-outdate%: ## check-outdated: Check for outdated dependencies
