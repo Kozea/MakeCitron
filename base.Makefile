@@ -24,9 +24,19 @@ C_NORMAL := $(shell echo -e "\e[m")
 endif
 INFO := $(SPACE)$(C_LEMON)🍋  $(C_BOLD)$(C_WHITE)Make$(C_YELLOW)Citron $(C_WHITE)$(VERSION)$(SPACE)$(SPACE)$(C_NORMAL)$(C_WHITE)<$(MAKECMDGOALS)>$(C_BOLD)$(C_YELLOW)@$(C_NORMAL)$(C_WHITE)$(shell hostname)$(C_NORMAL)
 
+_PYTHON =
+_NODE =
+ifndef NODE_ONLY
+_PYTHON = 1
+endif
+ifndef PYTHON_ONLY
+_NODE = 1
+endif
+
 # Default values
 # Could be overridden in `config.Makefile` or environment
 ## Python env
+ifdef _PYTHON
 PYTHON ?= python
 VENV ?= $(PWD)/.venv
 PYTHON_BINDIR ?= $(VENV)/bin
@@ -37,27 +47,22 @@ PIP_COMPILE ?= pip-compile --generate-hashes
 PIP_SYNC ?= pip-sync
 ### Ordered layers of requirements
 REQUIREMENTS_LAYERS ?= base dev
+### Set PATH to python binaries
+export PATH := $(PYTHON_BINDIR):$(PATH)
+endif
 ## Node env
+ifdef _NODE
 NODE_MODULES ?= $(PWD)/node_modules
 NPM ?= $(shell command -v yarn 2> /dev/null)
 NODE_BINDIR ?= $(shell $(NPM) bin)
 ### Commands (from `NODE_BINDIR` via `PATH` environment variable)
 JEST ?= jest
 PYTEST ?= pytest
-
-# Set PATH to node and python binaries
-export PATH := $(NODE_BINDIR):$(PYTHON_BINDIR):$(PATH)
+# Set PATH to node binaries
+export PATH := $(NODE_BINDIR):$(PATH)
+endif
 
 LOG = @echo -e "\n    $(C_BOLD)$(C_PINK)🞋  $(C_WHITE)$(@:$*=)$(C_RED)$* $(C_BLUE)$(shell seq -s"➘" $$((MAKELEVEL + 1)) | tr -d '[:digit:]')$(C_NORMAL)"
-
-_PYTHON =
-_NODE =
-ifndef NODE_ONLY
-_PYTHON = 1
-endif
-ifndef PYTHON_ONLY
-_NODE = 1
-endif
 
 check-enviro%: ## check-environ: Environment checking
 	$(LOG)
