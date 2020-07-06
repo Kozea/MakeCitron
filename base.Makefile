@@ -46,6 +46,7 @@ FLASK ?= flask
 PIP ?= pip
 PIP_COMPILE ?= pip-compile --generate-hashes
 PIP_SYNC ?= pip-sync
+PYTEST ?= pytest
 ### Ordered layers of requirements
 REQUIREMENTS_LAYERS ?= base dev
 ### Set PATH to python binaries
@@ -58,7 +59,6 @@ NPM ?= $(shell command -v yarn 2> /dev/null)
 NODE_BINDIR ?= $(shell $(NPM) bin)
 ### Commands (from `NODE_BINDIR` via `PATH` environment variable)
 JEST ?= jest
-PYTEST ?= pytest
 # Set PATH to node binaries
 export PATH := $(NODE_BINDIR):$(PATH)
 endif
