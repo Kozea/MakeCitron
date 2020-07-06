@@ -40,6 +40,7 @@ ifdef _PYTHON
 PYTHON ?= python
 VENV ?= $(PWD)/.venv
 PYTHON_BINDIR ?= $(VENV)/bin
+PYTHON_SRCDIR ?= lib
 ### Commands (from `PYTHON_BINDIR` via `PATH` environment variable)
 FLASK ?= flask
 PIP ?= pip
@@ -299,7 +300,7 @@ clea%: least-specific-clean ## clean: Clean all built assets
 #
 lint-pytho%: ## lint-python: Lint python source
 	$(LOG)
-	$(PYTEST) --flake8 --isort -m "flake8 or isort" lib --ignore=lib/frontend/static
+	$(PYTEST) --flake8 --isort -m "flake8 or isort" "$(PYTHON_SRCDIR)" --ignore=lib/frontend/static
 
 lint-nod%: ## lint-node: Lint node source
 	$(LOG)
@@ -316,8 +317,8 @@ endif
 
 fix-pytho%: ## fix-python: Fix python source format
 	$(LOG)
-	isort -rc lib
-	black lib
+	isort -rc "$(PYTHON_SRCDIR)"
+	black "$(PYTHON_SRCDIR)"
 
 fix-nod%: ## fix-node: Fix node source format
 	$(LOG)
@@ -337,7 +338,7 @@ endif
 #
 check-pytho%: ## check-python: Run python tests
 	$(LOG)
-	FLASK_CONFIG=$(FLASK_TEST_CONFIG) $(PYTEST) lib $(PYTEST_ARGS)
+	FLASK_CONFIG=$(FLASK_TEST_CONFIG) $(PYTEST) "$(PYTHON_SRCDIR)" $(PYTEST_ARGS)
 
 check-nod%: ## check-node: Run node tests
 	$(LOG)
