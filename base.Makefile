@@ -137,7 +137,7 @@ ifdef PARTIALLY_STAGED_FILES
 	@exit 1
 endif
 ifneq (,$(STAGED_PYTHON_FILES))
-	@isort -rc $(STAGED_PYTHON_FILES)
+	@isort $(STAGED_PYTHON_FILES)
 	@black $(STAGED_PYTHON_FILES)
 endif
 ifneq (,$(STAGED_NODE_FILES))
