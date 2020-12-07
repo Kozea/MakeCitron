@@ -137,7 +137,7 @@ ifdef PARTIALLY_STAGED_FILES
 	@exit 1
 endif
 ifneq (,$(STAGED_PYTHON_FILES))
-	@isort -rc $(STAGED_PYTHON_FILES)
+	@isort $(STAGED_PYTHON_FILES)
 	@black $(STAGED_PYTHON_FILES)
 endif
 ifneq (,$(STAGED_NODE_FILES))
@@ -211,9 +211,12 @@ install-nod%: ## install-node: Install node dependencies for development
 	yarn install --production=false --check-files
 	rm -fr .eslintcache
 
+requirements/%.txt: requirements/%.in ## requirements/%.txt: Generate python requirements
+	$(PIP_COMPILE) $<
+
 install-pytho%: install-python-venv ## install-python: Install python dependencies for development
 	$(LOG)
-	$(foreach req, $(REQUIREMENTS_LAYERS), $(PIP_COMPILE) requirements/$(req).in;)
+	$(foreach req, $(REQUIREMENTS_LAYERS), $(MAKE) requirements/$(req).txt;)
 	$(PIP_SYNC) $(patsubst %, requirements/%.txt, $(REQUIREMENTS_LAYERS))
 
 install-d%: ## install-db: Install database if any

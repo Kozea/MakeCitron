@@ -1,7 +1,7 @@
 [tool.black]
 line-length = 79
 skip-string-normalization = true
-py36 = true
+py38 = true
 include = '\.py$'
 exclude = '''
 /(
@@ -14,5 +14,13 @@ exclude = '''
   | buck-out
   | build
   | dist
+  | node_modules
 )/
 '''
+
+[tool.isort]
+multi_line_output = 3
+default_section = "THIRDPARTY"
+include_trailing_comma = true
+force_grid_wrap = 0
+combine_as_imports = true
