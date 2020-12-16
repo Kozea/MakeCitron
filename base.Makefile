@@ -186,7 +186,8 @@ install-python-ven%: ## install-python-venv: Create Python virtual environment
 	$(LOG)
 	test -d "$(VENV)" || $(PYTHON) -m venv "$(VENV)"
 	# `venv` could install outdated `pip` and `setuptools` versions
-	$(PIP) install --upgrade pip setuptools
+	# Install `wheel` too (used by `pip` if available when installing packages)
+	$(PIP) install --upgrade pip setuptools wheel
 	$(PIP) install pip-tools
 
 install-node-pro%: ## install-node-prod: Install node dependencies for production
