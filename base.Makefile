@@ -63,6 +63,8 @@ JEST ?= jest
 export PATH := $(NODE_BINDIR):$(PATH)
 endif
 
+WEBPACK ?= webpack
+
 LOG = @echo -e "\n    $(C_BOLD)$(C_PINK)🞋  $(C_WHITE)$(@:$*=)$(C_RED)$* $(C_BLUE)$(shell seq -s"➘" $$((MAKELEVEL + 1)) | tr -d '[:digit:]')$(C_NORMAL)"
 
 check-enviro%: ## check-environ: Environment checking
@@ -400,11 +402,11 @@ serve-nod%: ## serve-node: Run build node server
 
 serve-node-serve%: ## serve-node-server: Run node server
 	$(LOG)
-	WEBPACK_ENV=server NODE_ENV=development webpack --info-verbosity none
+	WEBPACK_ENV=server NODE_ENV=development $(WEBPACK)
 
 serve-node-clien%: ## serve-node-client: Run node development files
 	$(LOG)
-	WEBPACK_ENV=browser NODE_ENV=development webpack-dev-server
+	WEBPACK_ENV=browser NODE_ENV=development $(WEBPACK) serve
 
 serv%: least-specific-serve clean ## serve: Run all servers in development
 	$(LOG)
