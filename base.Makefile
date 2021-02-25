@@ -41,6 +41,7 @@ PYTHON ?= python
 VENV ?= $(PWD)/.venv
 PYTHON_BINDIR ?= $(VENV)/bin
 PYTHON_SRCDIR ?= lib
+PYTHON_PKG_TOOLS ?= pip pip-tools setuptools wheel
 ### Commands (from `PYTHON_BINDIR` via `PATH` environment variable)
 FLASK ?= flask
 PIP ?= pip
@@ -189,8 +190,7 @@ install-python-ven%: ## install-python-venv: Create Python virtual environment
 	test -d "$(VENV)" || $(PYTHON) -m venv "$(VENV)"
 	# `venv` could install outdated `pip` and `setuptools` versions
 	# Install `wheel` too (used by `pip` if available when installing packages)
-	$(PIP) install --upgrade pip setuptools wheel
-	$(PIP) install pip-tools
+	$(PIP) install --upgrade $(PYTHON_PKG_TOOLS)
 
 install-node-pro%: ## install-node-prod: Install node dependencies for production
 	$(LOG)
@@ -254,7 +254,7 @@ endif
 upgrade-pytho%: ## upgrade-python: Upgrade locked python dependencies (or specific ones with PKG="foo bar")
 	$(LOG)
 	# Upgrade packages not directly managed by pip-tools
-	$(PIP) install --upgrade pip setuptools
+	$(PIP) install --upgrade $(PYTHON_PKG_TOOLS)
 	$(foreach req, $(REQUIREMENTS_LAYERS), $(PIP_COMPILE) $(UPGRADE_ARG) requirements/$(req).in;)
 	$(PIP_SYNC) $(patsubst %, requirements/%.txt, $(REQUIREMENTS_LAYERS))
 
