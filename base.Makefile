@@ -438,7 +438,7 @@ URL_TEST ?= https://test-$(CI_PROJECT_NAME)-$(BRANCH_NAME).kozea.fr
 URL_TEST_API ?= $(URL_TEST)/api/
 URL_PROD ?= https://$(CI_PROJECT_NAME).kozea.fr
 URL_PROD_API ?= $(URL_PROD)/api/
-JUNKRAT_RESPONSE = /tmp/$(CI_PROJECT_NAME)-$(CI_COMMIT_REF_NAME).log
+JUNKRAT_RESPONSE = /tmp/$(CI_PROJECT_NAME)-$(BRANCH_NAME).log
 define newline
 
 
