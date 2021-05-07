@@ -1,7 +1,7 @@
 include config.Makefile
 -include config.custom.Makefile
 
-BASEVERSION ?= v1
+BASEVERSION ?= v2
 BASEROOT ?= https://raw.githubusercontent.com/Kozea/MakeCitron/$(BASEVERSION)/
 BASENAME := base.Makefile
 ifeq ($(MAKELEVEL), 0)
