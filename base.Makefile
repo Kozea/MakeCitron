@@ -323,7 +323,7 @@ endif
 
 fix-pytho%: ## fix-python: Fix python source format
 	$(LOG)
-	isort -rc "$(PYTHON_SRCDIR)"
+	isort "$(PYTHON_SRCDIR)"
 	black "$(PYTHON_SRCDIR)"
 
 fix-nod%: ## fix-node: Fix node source format
