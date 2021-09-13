@@ -463,7 +463,7 @@ deploy-tes%: ## deploy-test: Run test deployment for ci
 	@wget -nv --content-on-error -O- --header="Content-Type:application/json" --post-data=$(subst $(newline),,$(JUNKRAT_PARAMETERS)) $(JUNKRAT) | tee $(JUNKRAT_RESPONSE)
 	if [[ $$(tail -n1 $(JUNKRAT_RESPONSE)) != "Success" ]]; then exit 9; fi
 	wget -nv --content-on-error -O- $(URL_TEST)
-	wget -nv --content-on-error -O- $(URL_TEST_API)
+	if [[ -n "$(URL_TEST_API)" ]]; then wget -nv --content-on-error -O- $(URL_TEST_API); fi
 
 deploy-pro%: ## deploy-prod: Run prod deployment for ci
 	$(LOG)
@@ -471,4 +471,4 @@ deploy-pro%: ## deploy-prod: Run prod deployment for ci
 	@wget -nv --content-on-error -O- --header="Content-Type:application/json" --post-data=$(subst $(newline),,$(JUNKRAT_PARAMETERS)) $(JUNKRAT) | tee $(JUNKRAT_RESPONSE)
 	if [[ $$(tail -n1 $(JUNKRAT_RESPONSE)) != "Success" ]]; then exit 9; fi
 	wget -nv --content-on-error -O- $(URL_PROD)
-	wget -nv --content-on-error -O- $(URL_PROD_API)
+	if [[ -n "$(URL_PROD_API)" ]]; then wget -nv --content-on-error -O- $(URL_PROD_API); fi
