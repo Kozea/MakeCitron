@@ -41,11 +41,7 @@ PYTHON ?= python
 VENV ?= $(PWD)/.venv
 PYTHON_BINDIR ?= $(VENV)/bin
 PYTHON_SRCDIR ?= lib
-# FIXME
-# pip-tools does not work with pip-tools >= 21.3
-# See https://github.com/jazzband/pip-tools/issues/1503
-# To be removed once fixed upstream
-PYTHON_PKG_TOOLS ?= "pip<21.3" pip-tools setuptools wheel
+PYTHON_PKG_TOOLS ?= pip pip-tools setuptools wheel
 ### Commands (from `PYTHON_BINDIR` via `PATH` environment variable)
 FLASK ?= flask
 PIP ?= pip
