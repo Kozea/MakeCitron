@@ -432,43 +432,95 @@ else
 endif
 endif
 
+DOCKER ?= docker
+DOCKER_COMPOSE ?= docker-compose
 
-BRANCH_NAME = $(shell echo $(CI_COMMIT_REF_NAME) | tr -cd "[[:alnum:]]")
-URL_TEST ?= https://test-$(CI_PROJECT_NAME)-$(BRANCH_NAME).kozea.fr
-URL_TEST_API ?= $(URL_TEST)/api/
-URL_PROD ?= https://$(CI_PROJECT_NAME).kozea.fr
-URL_PROD_API ?= $(URL_PROD)/api/
-JUNKRAT_RESPONSE = /tmp/$(CI_PROJECT_NAME)-$(BRANCH_NAME).log
-define newline
+DEFAULT_APP_CONTAINER ?= app
+DEFAULT_CI_CONTAINER ?= ci
+DEFAULT_CONTAINER_SHELL ?= bash
+
+export CI_REGISTRY ?= registry.gitlab.com
+export CI_PROJECT_NAME ?= $(shell basename -s .git "$(shell git config --get remote.origin.url 2> /dev/null)")
+export CI_REGISTRY_IMAGE ?= $(CI_REGISTRY)/kozea/$(CI_PROJECT_NAME)
+export CI_COMMIT_REF_SLUG ?= $(shell git rev-parse --abbrev-ref HEAD 2> /dev/null | tr -dc '[:alnum:]\n\r' | tr '[:upper:]' '[:lower:]')
+export CI_COMMIT_SHORT_SHA ?= $(shell git describe --dirty --always --abbrev=8 2> /dev/null)
+
+export REGISTRY_IMAGE ?= ${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_SLUG}:${CI_COMMIT_SHORT_SHA}
+export REGISTRY_IMAGE_LATEST ?= ${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_SLUG}:latest
+
+# Every CI pipeline must have its own docker-compose namespace to enable parallelism
+export COMPOSE_PROJECT_NAME ?= $(shell echo "${CI_PROJECT_NAME}${CI_JOB_ID}" | tr -dc '[:alnum:]\n\r' | tr '[:upper:]' '[:lower:]')
+export COMPOSE_FILE ?= $(CURDIR)/docker-compose.yml
+
+# Enable BuildKit that brings substantial improvements in build process
+export DOCKER_BUILDKIT ?= 1
+export COMPOSE_DOCKER_CLI_BUILD ?= 1
+export BUILDKIT_INLINE_CACHE ?= 1
+
+# UID/GUD of the default user in the container
+export CONTAINER_UID ?= $(id -u)
+export CONTAINER_GID ?= $(id -g)
+
+ifeq (, $(DOCKER))
+	$(error $(shell echo -e "$(C_BOLD)$(C_PINK)⚠  $(C_RED)ERROR: $(C_NORMAL)$(C_RED)You must have docker installed$(C_NORMAL)"))
+endif
+
+ifeq (, $(DOCKER_COMPOSE))
+	$(error $(shell echo -e "$(C_BOLD)$(C_PINK)⚠  $(C_RED)ERROR: $(C_NORMAL)$(C_RED)You must have docker-compose installed$(C_NORMAL)"))
+endif
+
+docker-buil%: ## docker-build: Build docker image
+	ln -sf $(CURDIR)/.gitignore $(CURDIR)/.dockerignore
+	$(DOCKER_COMPOSE) build --pull $(DEFAULT_APP_CONTAINER)
+
+docker-ru%: docker-build ## docker-run: Start containers in foreground
+	$(DOCKER_COMPOSE) run --rm $(DEFAULT_APP_CONTAINER)
+
+docker-u%: docker-build ## docker-up: Start containers in background
+	$(DOCKER_COMPOSE) up -d $(DEFAULT_APP_CONTAINER)
+
+docker-sto%: ## docker-stop: Stop all containers
+	$(DOCKER_COMPOSE) stop
+
+docker-restar%: docker-stop docker-start ## docker-restart: Restart all containers
+
+docker-log%: ## docker-logs: Show last logs of the app container
+	$(DOCKER_COMPOSE) logs --tail=100 -f $(DEFAULT_APP_CONTAINER)
+
+docker-exe%: ## docker-exec: Execute in interactive shell in the app container.
+	$(DOCKER_COMPOSE) exec $(DEFAULT_APP_CONTAINER) "$(DEFAULT_CONTAINER_SHELL)"
+
+docker-statu%: ## docker-status: List all containers
+	$(DOCKER_COMPOSE) ps -a
+
+docker-clea%: ## docker-clean: Delete all containers, images and named volumes
+	$(DOCKER_COMPOSE) down -v --remove-orphans
+
+docker-releas%: ## docker-release: Push docker image tags to the gitlab registry
+	$(DOCKER) tag $(REGISTRY_IMAGE) $(REGISTRY_IMAGE_LATEST)
+	$(DOCKER) push $(REGISTRY_IMAGE)
+	$(DOCKER) push $(REGISTRY_IMAGE_LATEST)
+
+docker-ci-tes%: docker-build ## docker-ci-test: Run continuous integration tests
+	$(DOCKER_COMPOSE) run -T --rm $(DEFAULT_CI_CONTAINER)
+
+docker-ci-lin%: docker-build ## docker-ci-lint: Lint all source
+	$(DOCKER_COMPOSE) run -T --rm -e WAIT_POSTGRES=0 --no-deps $(DEFAULT_CI_CONTAINER) make lint
 
 
-endef
-define JUNKRAT_PARAMETERS
-'{
-  "job_id": "$(CI_JOB_ID)",
-  "token": "$(TOKEN)",
-  "url": "$(CI_REPOSITORY_URL)",
-  "build_stage": "$(CI_JOB_STAGE)",
-  "project_name": "$(CI_PROJECT_NAME)",
-  "branch": "$(CI_COMMIT_REF_NAME)",
-  "password": "$(PASSWD)",
-  "commit_sha": "$(CI_COMMIT_SHA)",
-  "url_test": "$(URL_TEST)"
-}'
-endef
+ANSIBLE := ansible
+ANSIBLE_PLAYBOOK := ansible-playbook
+ANSIBLE_DIR ?= $(CURDIR)/ansible
 
-deploy-tes%: ## deploy-test: Run test deployment for ci
+PLAYBOOK_FILE ?= $(ANSIBLE_DIR)/site.yml
+
+export ANSIBLE_INVENTORY ?= $(ANSIBLE_DIR)/hosts
+export ANSIBLE_VAULT_PASSWORD_FILE ?= $(ANSIBLE_DIR)/vault-pass-client
+
+deploy-tes%: ## deploy-test: Run deploy ansible playbook on testing
 	$(LOG)
-	@echo "Communicating with Junkrat..."
-	@wget -nv --content-on-error -O- --header="Content-Type:application/json" --post-data=$(subst $(newline),,$(JUNKRAT_PARAMETERS)) $(JUNKRAT) | tee $(JUNKRAT_RESPONSE)
-	if [[ $$(tail -n1 $(JUNKRAT_RESPONSE)) != "Success" ]]; then exit 9; fi
-	wget -nv --content-on-error -O- $(URL_TEST)
-	if [[ -n "$(URL_TEST_API)" ]]; then wget -nv --content-on-error -O- $(URL_TEST_API); fi
+	$(ANSIBLE_PLAYBOOK) $(PLAYBOOK_FILE) -l testing
 
-deploy-pro%: ## deploy-prod: Run prod deployment for ci
+deploy-pro%: ## deploy-prod: Run deploy ansible playbook on prod
 	$(LOG)
-	@echo "Communicating with Junkrat..."
-	@wget -nv --content-on-error -O- --header="Content-Type:application/json" --post-data=$(subst $(newline),,$(JUNKRAT_PARAMETERS)) $(JUNKRAT) | tee $(JUNKRAT_RESPONSE)
-	if [[ $$(tail -n1 $(JUNKRAT_RESPONSE)) != "Success" ]]; then exit 9; fi
-	wget -nv --content-on-error -O- $(URL_PROD)
-	if [[ -n "$(URL_PROD_API)" ]]; then wget -nv --content-on-error -O- $(URL_PROD_API); fi
+	$(ANSIBLE_PLAYBOOK) $(PLAYBOOK_FILE) -l production
