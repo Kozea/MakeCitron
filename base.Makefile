@@ -512,15 +512,20 @@ ANSIBLE := ansible
 ANSIBLE_PLAYBOOK := ansible-playbook
 ANSIBLE_DIR ?= $(CURDIR)/ansible
 
-PLAYBOOK_FILE ?= $(ANSIBLE_DIR)/site.yml
+DEPLOY_PLAYBOOK_FILE ?= $(ANSIBLE_DIR)/playbooks/deploy.yml
+UNDEPLOY_PLAYBOOK_FILE ?= $(ANSIBLE_DIR)/playbooks/undeploy.yml
 
 export ANSIBLE_INVENTORY ?= $(ANSIBLE_DIR)/hosts
 export ANSIBLE_VAULT_PASSWORD_FILE ?= $(ANSIBLE_DIR)/vault-pass-client
 
 deploy-tes%: ## deploy-test: Run deploy ansible playbook on testing
 	$(LOG)
-	$(ANSIBLE_PLAYBOOK) $(PLAYBOOK_FILE) -l testing
+	$(ANSIBLE_PLAYBOOK) $(DEPLOY_PLAYBOOK_FILE) -l testing
+
+undeploy-tes%: ## undeploy-test: Run undeploy ansible playbook on testing
+	$(LOG)
+	$(ANSIBLE_PLAYBOOK) $(UNDEPLOY_PLAYBOOK_FILE) -l testing
 
 deploy-pro%: ## deploy-prod: Run deploy ansible playbook on prod
 	$(LOG)
-	$(ANSIBLE_PLAYBOOK) $(PLAYBOOK_FILE) -l production
+	$(ANSIBLE_PLAYBOOK) $(DEPLOY_PLAYBOOK_FILE) -l production
