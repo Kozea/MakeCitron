@@ -505,7 +505,7 @@ docker-ci-tes%: docker-build ## docker-ci-test: Run continuous integration tests
 	$(DOCKER_COMPOSE) run -T --rm $(DEFAULT_CI_CONTAINER)
 
 docker-ci-lin%: docker-build ## docker-ci-lint: Lint all source
-	$(DOCKER_COMPOSE) run -T --rm -e WAIT_POSTGRES=0 --no-deps $(DEFAULT_CI_CONTAINER) make lint
+	$(DOCKER_COMPOSE) run -T --rm -e WAIT_POSTGRES=0 -e POPULATE_DB=0 -e MIGRATE_DB=0 --no-deps $(DEFAULT_CI_CONTAINER) make lint
 
 
 ANSIBLE := ansible
