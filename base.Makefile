@@ -474,7 +474,7 @@ docker-buil%: ## docker-build: Build docker image
 	$(DOCKER_COMPOSE) build --pull $(DEFAULT_APP_CONTAINER)
 
 docker-ru%: docker-build ## docker-run: Start containers in foreground
-	$(DOCKER_COMPOSE) run --rm $(DEFAULT_APP_CONTAINER)
+	$(DOCKER_COMPOSE) run --rm --service-ports $(DEFAULT_APP_CONTAINER)
 
 docker-u%: docker-build ## docker-up: Start containers in background
 	$(DOCKER_COMPOSE) up -d $(DEFAULT_APP_CONTAINER)
