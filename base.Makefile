@@ -444,6 +444,7 @@ export CI_PROJECT_NAME ?= $(shell basename -s .git "$(shell git config --get rem
 export CI_REGISTRY_IMAGE ?= $(CI_REGISTRY)/kozea/$(CI_PROJECT_NAME)
 export CI_COMMIT_REF_SLUG ?= $(shell git rev-parse --abbrev-ref HEAD 2> /dev/null | tr -dc '[:alnum:]\n\r' | tr '[:upper:]' '[:lower:]')
 export CI_COMMIT_SHORT_SHA ?= $(shell git describe --dirty --always --abbrev=8 2> /dev/null)
+export CI_DEFAULT_BRANCH ?= master
 
 export REGISTRY_IMAGE ?= ${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_SLUG}:${CI_COMMIT_SHORT_SHA}
 export REGISTRY_IMAGE_LATEST ?= ${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_SLUG}:latest
