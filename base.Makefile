@@ -450,7 +450,13 @@ export REGISTRY_IMAGE ?= ${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_SLUG}:${CI_COMMIT_
 export REGISTRY_IMAGE_LATEST ?= ${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_SLUG}:latest
 
 # Every CI pipeline must have its own docker-compose namespace to enable parallelism
-export COMPOSE_PROJECT_NAME ?= $(shell echo "${CI_PROJECT_NAME}${CI_JOB_ID}" | tr -dc '[:alnum:]\n\r' | tr '[:upper:]' '[:lower:]')
+ifdef CI_JOB_ID
+COMPOSE_NAMESPACE := ${CI_PROJECT_NAME}_ci_job_${CI_JOB_ID}
+else
+COMPOSE_NAMESPACE := ${CI_PROJECT_NAME}
+endif
+
+export COMPOSE_PROJECT_NAME ?= $(shell echo "$(COMPOSE_NAMESPACE)" | tr -dc '[:alnum:]\n\r' | tr '[:upper:]' '[:lower:]')
 export COMPOSE_FILE ?= $(CURDIR)/docker-compose.yml
 
 # Enable BuildKit that brings substantial improvements in build process
