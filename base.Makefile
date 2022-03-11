@@ -456,7 +456,7 @@ else
 COMPOSE_NAMESPACE := ${CI_PROJECT_NAME}
 endif
 
-export COMPOSE_PROJECT_NAME ?= $(shell echo "$(COMPOSE_NAMESPACE)" | tr -dc '[:alnum:]\n\r' | tr '[:upper:]' '[:lower:]')
+export COMPOSE_PROJECT_NAME ?= $(shell echo "$(COMPOSE_NAMESPACE)" | tr -dc '[:alnum:]_-' | tr '[:upper:]' '[:lower:]')
 export COMPOSE_FILE ?= $(CURDIR)/docker-compose.yml
 
 # Enable BuildKit that brings substantial improvements in build process
