@@ -466,8 +466,8 @@ export COMPOSE_DOCKER_CLI_BUILD ?= 1
 export BUILDKIT_INLINE_CACHE ?= 1
 
 # UID/GUD of the default user in the container
-export CONTAINER_UID ?= $(id -u)
-export CONTAINER_GID ?= $(id -g)
+export CONTAINER_UID ?= $(shell id -u)
+export CONTAINER_GID ?= $(shell id -g)
 
 ifeq (, $(DOCKER))
 	$(error $(shell echo -e "$(C_BOLD)$(C_PINK)⚠  $(C_RED)ERROR: $(C_NORMAL)$(C_RED)You must have docker installed$(C_NORMAL)"))
