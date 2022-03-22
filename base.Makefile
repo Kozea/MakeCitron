@@ -1,7 +1,7 @@
 VERSION := 1.4.16
 
 # Use bash
-SHELL := /bin/bash
+SHELL := bash
 
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # Your project Makefile must import `MakeCitron.Makefile` first
