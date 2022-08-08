@@ -43,6 +43,7 @@ PYTHON_BINDIR ?= $(VENV)/bin
 PYTHON_SRCDIR ?= lib
 PYTHON_PKG_TOOLS ?= pip pip-tools setuptools wheel
 ### Commands (from `PYTHON_BINDIR` via `PATH` environment variable)
+FLAKE8 ?= flake8
 FLASK ?= flask
 PIP ?= pip
 PIP_COMPILE ?= pip-compile --generate-hashes
@@ -306,7 +307,8 @@ clea%: least-specific-clean ## clean: Clean all built assets
 #
 lint-pytho%: ## lint-python: Lint python source
 	$(LOG)
-	$(PYTEST) --flake8 --isort -m "flake8 or isort" "$(PYTHON_SRCDIR)" --ignore=lib/frontend/static
+	$(FLAKE8) "$(PYTHON_SRCDIR)"
+	$(PYTEST) --isort -m "isort" "$(PYTHON_SRCDIR)" --ignore=lib/frontend/static
 
 lint-nod%: ## lint-node: Lint node source
 	$(LOG)
