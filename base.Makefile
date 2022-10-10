@@ -87,7 +87,10 @@ endif
 hel%: ## help: Show this help message. (Default)
 	$(LOG)
 	@echo -e "usage: make [target] ...\n\ntargets:\n	"
-	@grep -Eh '^.+:\ .*##\ .+' $(MAKEFILE_LIST) | cut -d '#' -f '3-' | sed -e 's/^\(.*\):\(.*\)/$(C_BOLD)$(C_PINK)\ \1$(C_WHITE):\2$(C_NORMAL)/' | column -t -s ':'
+	@grep -Eh '^.+:\ .*##\ .+' $(MAKEFILE_LIST) \
+		| cut -d '#' -f '3-' \
+		| sed -e 's/^\(.*\):\(.*\)/$(C_BOLD)$(C_PINK)\ \1$(C_WHITE):\2$(C_NORMAL)/' \
+		| column -t -s ':'
 .DEFAULT_GOAL := help
 
 least-specific%:
