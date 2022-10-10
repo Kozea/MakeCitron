@@ -90,6 +90,7 @@ hel%: ## help: Show this help message. (Default)
 	@grep -Eh '^.+:\ .*##\ .+' $(MAKEFILE_LIST) \
 		| cut -d '#' -f '3-' \
 		| sed -e 's/^\(.*\):\(.*\)/$(C_BOLD)$(C_PINK)\ \1$(C_WHITE):\2$(C_NORMAL)/' \
+		| sort \
 		| column -t -s ':'
 .DEFAULT_GOAL := help
 
