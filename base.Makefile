@@ -437,7 +437,7 @@ endif
 endif
 
 DOCKER ?= docker
-DOCKER_COMPOSE ?= docker-compose
+DOCKER_COMPOSE ?= docker compose
 
 DEFAULT_APP_CONTAINER ?= app
 DEFAULT_CI_CONTAINER ?= ci
