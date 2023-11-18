@@ -444,10 +444,27 @@ DEFAULT_CI_CONTAINER ?= ci
 DEFAULT_CONTAINER_SHELL ?= bash
 
 export CI_REGISTRY ?= registry.gitlab.com
-export CI_PROJECT_NAME ?= $(shell basename -s .git "$(shell git config --get remote.origin.url 2> /dev/null)")
+
+# Do not use `?=` when variable is set from call `shell` function then exported
+# (it could be very slow)
+# See https://stackoverflow.com/a/77364656/611407
+ifndef CI_PROJECT_NAME
+	CI_PROJECT_NAME := $(shell basename -s .git "$(shell git config --get remote.origin.url 2> /dev/null)")
+endif
+export CI_PROJECT_NAME
+
 export CI_REGISTRY_IMAGE ?= $(CI_REGISTRY)/kozea/$(CI_PROJECT_NAME)
-export CI_COMMIT_REF_SLUG ?= $(shell git rev-parse --abbrev-ref HEAD 2> /dev/null | tr -dc '[:alnum:]\n\r' | tr '[:upper:]' '[:lower:]')
-export CI_COMMIT_SHORT_SHA ?= $(shell git describe --dirty --always --abbrev=8 2> /dev/null)
+
+ifndef CI_COMMIT_REF_SLUG
+	CI_COMMIT_REF_SLUG := $(shell git rev-parse --abbrev-ref HEAD 2> /dev/null | tr -dc '[:alnum:]\n\r' | tr '[:upper:]' '[:lower:]')
+endif
+export CI_COMMIT_REF_SLUG
+
+ifndef CI_COMMIT_SHORT_SHA
+	CI_COMMIT_SHORT_SHA := $(shell git describe --dirty --always --abbrev=8 2> /dev/null)
+endif
+export CI_COMMIT_SHORT_SHA
+
 export CI_DEFAULT_BRANCH ?= master
 
 export REGISTRY_IMAGE ?= ${CI_REGISTRY_IMAGE}/${CI_COMMIT_REF_SLUG}:${CI_COMMIT_SHORT_SHA}
@@ -460,7 +477,11 @@ else
 COMPOSE_NAMESPACE := ${CI_PROJECT_NAME}
 endif
 
-export COMPOSE_PROJECT_NAME ?= $(shell echo "$(COMPOSE_NAMESPACE)" | tr -dc '[:alnum:]_-' | tr '[:upper:]' '[:lower:]')
+ifndef COMPOSE_PROJECT_NAME
+	COMPOSE_PROJECT_NAME := $(shell echo "$(COMPOSE_NAMESPACE)" | tr -dc '[:alnum:]_-' | tr '[:upper:]' '[:lower:]')
+endif
+export COMPOSE_PROJECT_NAME
+
 export COMPOSE_FILE ?= $(CURDIR)/docker-compose.yml
 
 # Enable BuildKit that brings substantial improvements in build process
@@ -469,8 +490,15 @@ export COMPOSE_DOCKER_CLI_BUILD ?= 1
 export BUILDKIT_INLINE_CACHE ?= 1
 
 # UID/GUD of the default user in the container
-export CONTAINER_UID ?= $(shell id -u)
-export CONTAINER_GID ?= $(shell id -g)
+ifndef CONTAINER_UID
+	CONTAINER_UID := $(shell id -u)
+endif
+export CONTAINER_UID
+
+ifndef CONTAINER_GID
+	CONTAINER_GID := $(shell id -g)
+endif
+export CONTAINER_GID
 
 ifeq (, $(DOCKER))
 	$(error $(shell echo -e "$(C_BOLD)$(C_PINK)⚠  $(C_RED)ERROR: $(C_NORMAL)$(C_RED)You must have docker installed$(C_NORMAL)"))
