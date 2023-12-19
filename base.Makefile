@@ -310,7 +310,7 @@ clea%: least-specific-clean ## clean: Clean all built assets
 #
 lint-pytho%: ## lint-python: Lint python source
 	$(LOG)
-	$(PYTEST) --flake8 --isort -m "flake8 or isort" "$(PYTHON_SRCDIR)" --ignore=lib/frontend/static
+	$(RUFF) check $(PYTHON_SRCDIR)
 
 lint-nod%: ## lint-node: Lint node source
 	$(LOG)
