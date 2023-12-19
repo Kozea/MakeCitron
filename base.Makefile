@@ -168,7 +168,7 @@ endif
 # Installing
 #
 DOT_FILES ?= MakeCitron.Makefile .sass-lint.yml
-PYTHON_DOT_FILES ?= .isort.cfg pyproject.toml setup.cfg
+PYTHON_DOT_FILES ?= pyproject.toml setup.cfg
 NODE_DOT_FILES ?= .eslintrc.json .eslintignore .prettierrc .prettierignore jsconfig.json
 ifdef _NODE
 DOT_FILES += $(NODE_DOT_FILES)
