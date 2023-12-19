@@ -48,6 +48,7 @@ PIP ?= pip
 PIP_COMPILE ?= pip-compile --generate-hashes
 PIP_SYNC ?= pip-sync
 PYTEST ?= pytest
+RUFF ?= ruff
 ### Ordered layers of requirements
 REQUIREMENTS_LAYERS ?= base dev
 ### Set PATH to python binaries
@@ -144,7 +145,7 @@ ifdef PARTIALLY_STAGED_FILES
 	@exit 1
 endif
 ifneq (,$(STAGED_PYTHON_FILES))
-	@ruff format $(STAGED_PYTHON_FILES)
+	@$(RUFF) format $(STAGED_PYTHON_FILES)
 endif
 ifneq (,$(STAGED_NODE_FILES))
 	@prettier --write $(STAGED_NODE_FILES)
