@@ -328,8 +328,7 @@ endif
 
 fix-pytho%: ## fix-python: Fix python source format
 	$(LOG)
-	isort "$(PYTHON_SRCDIR)"
-	black "$(PYTHON_SRCDIR)"
+	$(RUFF) format $(LINTED_PYTHON_DIRS)
 
 fix-nod%: ## fix-node: Fix node source format
 	$(LOG)
