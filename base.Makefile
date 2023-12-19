@@ -41,6 +41,7 @@ PYTHON ?= python
 VENV ?= $(PWD)/.venv
 PYTHON_BINDIR ?= $(VENV)/bin
 PYTHON_SRCDIR ?= lib
+LINTED_PYTHON_DIRS ?= $(PYTHON_SRCDIR)
 PYTHON_PKG_TOOLS ?= pip pip-tools setuptools wheel
 ### Commands (from `PYTHON_BINDIR` via `PATH` environment variable)
 FLASK ?= flask
@@ -310,7 +311,7 @@ clea%: least-specific-clean ## clean: Clean all built assets
 #
 lint-pytho%: ## lint-python: Lint python source
 	$(LOG)
-	$(RUFF) check --show-files $(PYTHON_SRCDIR)
+	$(RUFF) check --show-files $(LINTED_PYTHON_DIRS)
 
 lint-nod%: ## lint-node: Lint node source
 	$(LOG)
