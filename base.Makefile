@@ -311,7 +311,7 @@ clea%: least-specific-clean ## clean: Clean all built assets
 #
 lint-pytho%: ## lint-python: Lint python source
 	$(LOG)
-	$(RUFF) check --show-files $(LINTED_PYTHON_DIRS)
+	$(RUFF) check $(LINTED_PYTHON_DIRS)
 
 lint-nod%: ## lint-node: Lint node source
 	$(LOG)
