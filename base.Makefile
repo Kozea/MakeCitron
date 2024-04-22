@@ -44,6 +44,7 @@ PYTHON_SRCDIR ?= lib
 LINTED_PYTHON_DIRS ?= $(PYTHON_SRCDIR)
 PYTHON_PKG_TOOLS ?= pip pip-tools setuptools wheel
 ### Commands (from `PYTHON_BINDIR` via `PATH` environment variable)
+DJLINT ?= djlint
 FLASK ?= flask
 PIP ?= pip
 PIP_COMPILE ?= pip-compile --generate-hashes
@@ -130,12 +131,19 @@ ifneq ($(PARTIALLY_STAGED_PYTHON_FILES),)
 PARTIALLY_STAGED_FILES += $(PARTIALLY_STAGED_PYTHON_FILES)
 endif
 endif
+STAGED_JINJA_FILES := $(shell git diff --cached --name-only --diff-filter=ACM "*.jinja2" 2> /dev/null | tr '\n' ' ')
+ifneq ($(STAGED_JINJA_FILES),)
+PARTIALLY_STAGED_JINJA_FILES := $(shell git diff --name-only $(STAGED_JINJA_FILES))
+ifneq ($(PARTIALLY_STAGED_JINJA_FILES),)
+PARTIALLY_STAGED_FILES += $(PARTIALLY_STAGED_JINJA_FILES)
+endif
+endif
 endif
 
 pre-commi%: ## pre-commit: Target to run at pre-commit
 	$(LOG)
 # If there are no interesting staged files, do nothing
-ifneq ($(STAGED_PYTHON_FILES)$(STAGED_NODE_FILES),)
+ifneq ($(STAGED_PYTHON_FILES)$(STAGED_JINJA_FILES)$(STAGED_NODE_FILES),)
 ifdef PARTIALLY_STAGED_FILES
 	@echo $(C_BOLD)$(C_YELLOW)You have unstaged changes in the following staged files:$(C_NORMAL)
 	@$(foreach file, $(PARTIALLY_STAGED_FILES), echo "  $(C_BOLD)$(C_BLUE)*$(C_NORMAL) $(file)";)
@@ -148,10 +156,13 @@ endif
 ifneq (,$(STAGED_PYTHON_FILES))
 	@$(RUFF) format $(STAGED_PYTHON_FILES)
 endif
+ifneq ($(STAGED_JINJA_FILES),)
+	@$(DJLINT) $(STAGED_JINJA_FILES) --reformat || true
+endif
 ifneq (,$(STAGED_NODE_FILES))
 	@prettier --write $(STAGED_NODE_FILES)
 endif
-	@FORMATTED_FILES=`git diff --name-only $(STAGED_PYTHON_FILES) $(STAGED_NODE_FILES)`; if [[ "$$FORMATTED_FILES" ]]; then \
+	@FORMATTED_FILES=`git diff --name-only $(STAGED_PYTHON_FILES) $(STAGED_JINJA_FILES) $(STAGED_NODE_FILES)`; if [[ "$$FORMATTED_FILES" ]]; then \
 		echo; \
 		echo "$(C_BOLD)$(C_YELLOW)Some files have been auto-formatted. Please review these files and add them to the commit: $(C_NORMAL)$(C_BLUE)"; \
 		for file in $${FORMATTED_FILES[@]}; do \
