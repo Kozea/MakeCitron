@@ -155,9 +155,11 @@ ifdef PARTIALLY_STAGED_FILES
 endif
 ifneq (,$(STAGED_PYTHON_FILES))
 	@$(RUFF) format $(STAGED_PYTHON_FILES)
+	@$(RUFF) check $(STAGED_PYTHON_FILES)
 endif
 ifneq ($(STAGED_JINJA_FILES),)
-	@$(DJLINT) $(STAGED_JINJA_FILES) --reformat || true
+	@$(DJLINT) $(STAGED_JINJA_FILES) --reformat
+	@$(DJLINT) $(STAGED_JINJA_FILES) --lint
 endif
 ifneq (,$(STAGED_NODE_FILES))
 	@prettier --write $(STAGED_NODE_FILES)
@@ -171,7 +173,6 @@ endif
 		echo $(C_NORMAL); \
 		exit 1; \
 	fi
-	$(MAKE) lint
 endif
 
 
