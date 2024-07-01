@@ -1,7 +1,7 @@
 VERSION := 1.4.16
 
 # Use bash
-SHELL := /bin/bash
+SHELL := bash
 
 # This Makefile is based on the ideas from https://mattandre.ws/2016/05/makefile-inheritance/
 # Your project Makefile must import `MakeCitron.Makefile` first
@@ -41,13 +41,16 @@ PYTHON ?= python
 VENV ?= $(PWD)/.venv
 PYTHON_BINDIR ?= $(VENV)/bin
 PYTHON_SRCDIR ?= lib
+LINTED_PYTHON_DIRS ?= $(PYTHON_SRCDIR)
 PYTHON_PKG_TOOLS ?= pip pip-tools setuptools wheel
 ### Commands (from `PYTHON_BINDIR` via `PATH` environment variable)
+DJLINT ?= djlint
 FLASK ?= flask
 PIP ?= pip
 PIP_COMPILE ?= pip-compile --generate-hashes
 PIP_SYNC ?= pip-sync
 PYTEST ?= pytest
+RUFF ?= ruff
 ### Ordered layers of requirements
 REQUIREMENTS_LAYERS ?= base dev
 ### Set PATH to python binaries
@@ -111,7 +114,7 @@ al%: install build ## all: Install then build
 
 
 ifdef _NODE
-STAGED_NODE_FILES := $(shell git diff --cached --name-only --diff-filter=ACM "*.js" "*.jsx" | tr '\n' ' ')
+STAGED_NODE_FILES := $(shell git diff --cached --name-only --diff-filter=ACM "*.js" "*.jsx" 2> /dev/null | tr '\n' ' ')
 ifneq ($(STAGED_NODE_FILES),)
 PARTIALLY_STAGED_NODE_FILES := $(shell git diff --name-only $(STAGED_NODE_FILES))
 ifneq ($(PARTIALLY_STAGED_NODE_FILES),)
@@ -121,11 +124,18 @@ endif
 endif
 
 ifdef _PYTHON
-STAGED_PYTHON_FILES := $(shell git diff --cached --name-only --diff-filter=ACM "*.py" | tr '\n' ' ')
+STAGED_PYTHON_FILES := $(shell git diff --cached --name-only --diff-filter=ACM "*.py" 2> /dev/null | tr '\n' ' ')
 ifneq ($(STAGED_PYTHON_FILES),)
 PARTIALLY_STAGED_PYTHON_FILES := $(shell git diff --name-only $(STAGED_PYTHON_FILES))
 ifneq ($(PARTIALLY_STAGED_PYTHON_FILES),)
 PARTIALLY_STAGED_FILES += $(PARTIALLY_STAGED_PYTHON_FILES)
+endif
+endif
+STAGED_JINJA_FILES := $(shell git diff --cached --name-only --diff-filter=ACM "*.jinja2" 2> /dev/null | tr '\n' ' ')
+ifneq ($(STAGED_JINJA_FILES),)
+PARTIALLY_STAGED_JINJA_FILES := $(shell git diff --name-only $(STAGED_JINJA_FILES))
+ifneq ($(PARTIALLY_STAGED_JINJA_FILES),)
+PARTIALLY_STAGED_FILES += $(PARTIALLY_STAGED_JINJA_FILES)
 endif
 endif
 endif
@@ -133,7 +143,7 @@ endif
 pre-commi%: ## pre-commit: Target to run at pre-commit
 	$(LOG)
 # If there are no interesting staged files, do nothing
-ifneq ($(STAGED_PYTHON_FILES)$(STAGED_NODE_FILES),)
+ifneq ($(STAGED_PYTHON_FILES)$(STAGED_JINJA_FILES)$(STAGED_NODE_FILES),)
 ifdef PARTIALLY_STAGED_FILES
 	@echo $(C_BOLD)$(C_YELLOW)You have unstaged changes in the following staged files:$(C_NORMAL)
 	@$(foreach file, $(PARTIALLY_STAGED_FILES), echo "  $(C_BOLD)$(C_BLUE)*$(C_NORMAL) $(file)";)
@@ -144,13 +154,17 @@ ifdef PARTIALLY_STAGED_FILES
 	@exit 1
 endif
 ifneq (,$(STAGED_PYTHON_FILES))
-	@isort $(STAGED_PYTHON_FILES)
-	@black $(STAGED_PYTHON_FILES)
+	@$(RUFF) format $(STAGED_PYTHON_FILES)
+	@$(RUFF) check $(STAGED_PYTHON_FILES)
+endif
+ifneq ($(STAGED_JINJA_FILES),)
+	@$(DJLINT) $(STAGED_JINJA_FILES) --reformat
+	@$(DJLINT) $(STAGED_JINJA_FILES) --lint
 endif
 ifneq (,$(STAGED_NODE_FILES))
 	@prettier --write $(STAGED_NODE_FILES)
 endif
-	@FORMATTED_FILES=`git diff --name-only $(STAGED_PYTHON_FILES) $(STAGED_NODE_FILES)`; if [[ "$$FORMATTED_FILES" ]]; then \
+	@FORMATTED_FILES=`git diff --name-only $(STAGED_PYTHON_FILES) $(STAGED_JINJA_FILES) $(STAGED_NODE_FILES)`; if [[ "$$FORMATTED_FILES" ]]; then \
 		echo; \
 		echo "$(C_BOLD)$(C_YELLOW)Some files have been auto-formatted. Please review these files and add them to the commit: $(C_NORMAL)$(C_BLUE)"; \
 		for file in $${FORMATTED_FILES[@]}; do \
@@ -159,7 +173,6 @@ endif
 		echo $(C_NORMAL); \
 		exit 1; \
 	fi
-	$(MAKE) lint
 endif
 
 
@@ -167,7 +180,7 @@ endif
 # Installing
 #
 DOT_FILES ?= MakeCitron.Makefile .sass-lint.yml
-PYTHON_DOT_FILES ?= .isort.cfg pyproject.toml setup.cfg
+PYTHON_DOT_FILES ?= pyproject.toml setup.cfg
 NODE_DOT_FILES ?= .eslintrc.json .eslintignore .prettierrc .prettierignore jsconfig.json
 ifdef _NODE
 DOT_FILES += $(NODE_DOT_FILES)
@@ -310,7 +323,7 @@ clea%: least-specific-clean ## clean: Clean all built assets
 #
 lint-pytho%: ## lint-python: Lint python source
 	$(LOG)
-	$(PYTEST) --flake8 --isort -m "flake8 or isort" "$(PYTHON_SRCDIR)" --ignore=lib/frontend/static
+	$(RUFF) check $(LINTED_PYTHON_DIRS)
 
 lint-nod%: ## lint-node: Lint node source
 	$(LOG)
@@ -327,8 +340,7 @@ endif
 
 fix-pytho%: ## fix-python: Fix python source format
 	$(LOG)
-	isort "$(PYTHON_SRCDIR)"
-	black "$(PYTHON_SRCDIR)"
+	$(RUFF) format $(LINTED_PYTHON_DIRS)
 
 fix-nod%: ## fix-node: Fix node source format
 	$(LOG)
