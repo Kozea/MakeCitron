@@ -42,6 +42,7 @@ VENV ?= $(PWD)/.venv
 PYTHON_BINDIR ?= $(VENV)/bin
 PYTHON_SRCDIR ?= lib
 LINTED_PYTHON_DIRS ?= $(PYTHON_SRCDIR)
+TEMPLATE_DIRS ?= $(PYTHON_SRCDIR)/templates
 PYTHON_PKG_TOOLS ?= pip pip-tools setuptools wheel
 ### Commands (from `PYTHON_BINDIR` via `PATH` environment variable)
 DJLINT ?= djlint
@@ -324,6 +325,8 @@ clea%: least-specific-clean ## clean: Clean all built assets
 lint-pytho%: ## lint-python: Lint python source
 	$(LOG)
 	$(RUFF) check $(LINTED_PYTHON_DIRS)
+	$(DJLINT) $(TEMPLATE_DIRS) --lint
+	$(DJLINT) $(TEMPLATE_DIRS) --check
 
 lint-nod%: ## lint-node: Lint node source
 	$(LOG)
