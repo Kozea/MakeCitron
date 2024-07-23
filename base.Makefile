@@ -343,6 +343,7 @@ endif
 fix-pytho%: ## fix-python: Fix python source format
 	$(LOG)
 	$(RUFF) format $(LINTED_PYTHON_DIRS)
+	find $(TEMPLATE_DIRS) -type f -name '*.jinja2' | xargs $(DJLINT) --reformat
 
 fix-nod%: ## fix-node: Fix node source format
 	$(LOG)
