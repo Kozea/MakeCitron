@@ -115,7 +115,7 @@ al%: install build ## all: Install then build
 
 
 ifdef _NODE
-STAGED_NODE_FILES := $(shell git diff --cached --name-only --diff-filter=ACM "*.js" "*.jsx" 2> /dev/null | tr '\n' ' ')
+STAGED_NODE_FILES := $(shell git diff --cached -z --name-only --diff-filter=ACM "*.js" "*.jsx" 2> /dev/null | tr '\0' ' ')
 ifneq ($(STAGED_NODE_FILES),)
 PARTIALLY_STAGED_NODE_FILES := $(shell git diff --name-only $(STAGED_NODE_FILES))
 ifneq ($(PARTIALLY_STAGED_NODE_FILES),)
@@ -125,14 +125,14 @@ endif
 endif
 
 ifdef _PYTHON
-STAGED_PYTHON_FILES := $(shell git diff --cached --name-only --diff-filter=ACM "*.py" 2> /dev/null | tr '\n' ' ')
+STAGED_PYTHON_FILES := $(shell git diff --cached -z --name-only --diff-filter=ACM "*.py" 2> /dev/null | tr '\0' ' ')
 ifneq ($(STAGED_PYTHON_FILES),)
 PARTIALLY_STAGED_PYTHON_FILES := $(shell git diff --name-only $(STAGED_PYTHON_FILES))
 ifneq ($(PARTIALLY_STAGED_PYTHON_FILES),)
 PARTIALLY_STAGED_FILES += $(PARTIALLY_STAGED_PYTHON_FILES)
 endif
 endif
-STAGED_JINJA_FILES := $(shell git diff --cached --name-only --diff-filter=ACM "*.jinja2" 2> /dev/null | tr '\n' ' ')
+STAGED_JINJA_FILES := $(shell git diff --cached -z --name-only --diff-filter=ACM "*.jinja2" 2> /dev/null | tr '\0' ' ')
 ifneq ($(STAGED_JINJA_FILES),)
 PARTIALLY_STAGED_JINJA_FILES := $(shell git diff --name-only $(STAGED_JINJA_FILES))
 ifneq ($(PARTIALLY_STAGED_JINJA_FILES),)
