@@ -340,8 +340,9 @@ ifdef _PYTHON
 	$(MAKE) lint-python
 endif
 
-fix-pytho%: ## fix-python: Fix python source format
+fix-pytho%: ## fix-python: Fix python source format and lint violations
 	$(LOG)
+	$(RUFF) check --fix $(LINTED_PYTHON_DIRS)
 	$(RUFF) format $(LINTED_PYTHON_DIRS)
 	find $(TEMPLATE_DIRS) -type f -name '*.jinja2' | xargs $(DJLINT) --reformat
 
