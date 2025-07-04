@@ -43,14 +43,14 @@ PYTHON_BINDIR ?= $(VENV)/bin
 PYTHON_SRCDIR ?= lib
 LINTED_PYTHON_DIRS ?= $(PYTHON_SRCDIR)
 TEMPLATE_DIRS ?= $(PYTHON_SRCDIR)/templates
-PYTHON_PKG_TOOLS ?= pip pip-tools setuptools wheel
+PYTHON_PKG_TOOLS ?= uv
 ### Commands (from `PYTHON_BINDIR` via `PATH` environment variable)
 DJLINT ?= djlint
 DJLINT_JINJA_CMD := find $(TEMPLATE_DIRS) -type f -name '*.jinja2' | xargs --no-run-if-empty $(DJLINT)
 FLASK ?= flask
-PIP ?= pip
-PIP_COMPILE ?= pip-compile --generate-hashes
-PIP_SYNC ?= pip-sync
+PIP ?= uv pip
+PIP_COMPILE ?= uv pip compile --generate-hashes
+PIP_SYNC ?= uv pip sync
 PYTEST ?= pytest
 RUFF ?= ruff
 ### Ordered layers of requirements
@@ -77,7 +77,7 @@ check-enviro%: ## check-environ: Environment checking
 	$(LOG)
 ifdef _PYTHON
 ifeq (, $(PIP))
-	$(error $(shell echo -e "$(C_BOLD)$(C_PINK)⚠  $(C_RED)ERROR: $(C_NORMAL)$(C_RED)You must have pip installed$(C_NORMAL)"))
+	$(error $(shell echo -e "$(C_BOLD)$(C_PINK)⚠  $(C_RED)ERROR: $(C_NORMAL)$(C_RED)You must have uv installed$(C_NORMAL)"))
 endif
 endif
 ifdef _NODE
@@ -274,7 +274,7 @@ upgrade-pytho%: ## upgrade-python: Upgrade locked python dependencies (or specif
 	$(LOG)
 	# Upgrade packages not directly managed by pip-tools
 	$(PIP) install --upgrade $(PYTHON_PKG_TOOLS)
-	$(foreach req, $(REQUIREMENTS_LAYERS), $(PIP_COMPILE) $(UPGRADE_ARG) requirements/$(req).in;)
+	$(foreach req, $(REQUIREMENTS_LAYERS), uv pip compile $(UPGRADE_ARG) requirements/$(req).in -o requirements/$(req).txt --generate-hashes;)
 	$(PIP_SYNC) $(patsubst %, requirements/%.txt, $(REQUIREMENTS_LAYERS))
 
 upgrade-nod%: ## upgrade-node: Upgrade interactively locked node dependencies
