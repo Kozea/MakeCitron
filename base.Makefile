@@ -43,7 +43,7 @@ PYTHON_BINDIR ?= $(VENV)/bin
 PYTHON_SRCDIR ?= lib
 LINTED_PYTHON_DIRS ?= $(PYTHON_SRCDIR)
 TEMPLATE_DIRS ?= $(PYTHON_SRCDIR)/templates
-PYTHON_PKG_TOOLS ?= uv setuptools
+PYTHON_PKG_TOOLS ?= setuptools uv
 ### Commands (from `PYTHON_BINDIR` via `PATH` environment variable)
 DJLINT ?= djlint
 DJLINT_JINJA_CMD := find $(TEMPLATE_DIRS) -type f -name '*.jinja2' | xargs --no-run-if-empty $(DJLINT)
