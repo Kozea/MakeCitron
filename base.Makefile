@@ -49,7 +49,11 @@ DJLINT ?= djlint
 FLASK ?= flask
 PIP ?= uv pip
 PIP_COMPILE ?= uv pip compile --generate-hashes
-PIP_SYNC ?= uv pip sync
+# Instead of using `uv pip sync`
+# To keep extra packages that are not listed in requirements,
+# use `uv pip install` instead.
+# See: https://docs.astral.sh/uv/reference/cli/#uv-pip-sync
+PIP_SYNC ?= uv pip install
 PYTEST ?= pytest
 RUFF ?= ruff
 ### Ordered layers of requirements
@@ -237,7 +241,7 @@ requirements/%.txt: requirements/%.in ## requirements/%.txt: Generate python req
 install-pytho%: install-python-venv ## install-python: Install python dependencies for development
 	$(LOG)
 	$(foreach req, $(REQUIREMENTS_LAYERS), $(MAKE) requirements/$(req).txt;)
-	$(PIP_SYNC) $(patsubst %, requirements/%.txt, $(REQUIREMENTS_LAYERS))
+	$(PIP_SYNC) $(foreach req, $(REQUIREMENTS_LAYERS), -r requirements/$(req).txt)
 
 install-d%: ## install-db: Install database if any
 	$(LOG)
