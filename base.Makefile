@@ -57,6 +57,7 @@ PIP_COMPILE ?= uv pip compile --generate-hashes
 PIP_SYNC ?= uv pip install
 PYTEST ?= pytest
 RUFF ?= ruff
+UV ?= uv
 ### Ordered layers of requirements
 REQUIREMENTS_LAYERS ?= base dev
 ### Set PATH to python binaries
@@ -210,7 +211,7 @@ endif
 
 install-python-ven%: ## install-python-venv: Create Python virtual environment
 	$(LOG)
-	test -d "$(VENV)" || $(PYTHON) -m venv "$(VENV)"
+	test -d "$(VENV)" || $(UV) venv "$(VENV)"
 	# Install uv and ensure it is up to date
 	$(PIP) install --upgrade $(PYTHON_PKG_TOOLS)
 
@@ -275,9 +276,9 @@ UPGRADE_ARG := --upgrade
 endif
 upgrade-pytho%: ## upgrade-python: Upgrade locked python dependencies (or specific ones with PKG="foo bar")
 	$(LOG)
-	# Upgrade uv itself before updating requirements
+	# Ensure Python packaging tools are installed and up to date
 	$(PIP) install --upgrade $(PYTHON_PKG_TOOLS)
-	$(foreach req, $(REQUIREMENTS_LAYERS), uv pip compile $(UPGRADE_ARG) requirements/$(req).in -o requirements/$(req).txt --generate-hashes;)
+	$(foreach req, $(REQUIREMENTS_LAYERS),$(PIP_COMPILE) $(UPGRADE_ARG) requirements/$(req).in -o requirements/$(req).txt --generate-hashes;)
 	$(PIP_SYNC) $(patsubst %, requirements/%.txt, $(REQUIREMENTS_LAYERS))
 
 upgrade-nod%: ## upgrade-node: Upgrade interactively locked node dependencies
