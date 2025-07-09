@@ -211,7 +211,8 @@ endif
 install-python-ven%: ## install-python-venv: Create Python virtual environment
 	$(LOG)
 	test -d "$(VENV)" || $(UV) venv "$(VENV)"
-	# Install uv and ensure it is up to date
+	# When creating a venv with uv, it is empty by default.
+	# We need to install uv and setuptools inside
 	$(PIP) install --upgrade $(PYTHON_PKG_TOOLS)
 
 install-node-pro%: ## install-node-prod: Install node dependencies for production
