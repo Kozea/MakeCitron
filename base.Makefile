@@ -278,7 +278,7 @@ upgrade-pytho%: ## upgrade-python: Upgrade locked python dependencies (or specif
 	$(LOG)
 	# Ensure Python packaging tools are installed and up to date
 	$(PIP) install --upgrade $(PYTHON_PKG_TOOLS)
-	$(foreach req, $(REQUIREMENTS_LAYERS),$(PIP_COMPILE) $(UPGRADE_ARG) requirements/$(req).in -o requirements/$(req).txt --generate-hashes;)
+	$(foreach req, $(REQUIREMENTS_LAYERS),$(PIP_COMPILE) $(UPGRADE_ARG) requirements/$(req).in -o requirements/$(req).txt;)
 	$(PIP_SYNC) $(patsubst %, requirements/%.txt, $(REQUIREMENTS_LAYERS))
 
 upgrade-nod%: ## upgrade-node: Upgrade interactively locked node dependencies
