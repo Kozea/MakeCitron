@@ -472,7 +472,7 @@ export CI_PROJECT_NAME
 export CI_REGISTRY_IMAGE ?= $(CI_REGISTRY)/kozea/$(CI_PROJECT_NAME)
 
 ifndef CI_COMMIT_REF_SLUG
-	CI_COMMIT_REF_SLUG := $(shell git rev-parse --abbrev-ref HEAD 2> /dev/null | tr -dc '[:alnum:]\n\r' | tr '[:upper:]' '[:lower:]')
+	CI_COMMIT_REF_SLUG := $(shell git rev-parse --abbrev-ref HEAD 2> /dev/null | tr -dc '[:alnum:]-\n\r' | tr '[:upper:]' '[:lower:]')
 endif
 export CI_COMMIT_REF_SLUG
 
