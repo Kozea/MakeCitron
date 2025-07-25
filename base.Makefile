@@ -326,7 +326,11 @@ lint-pytho%: ## lint-python: Lint python source
 	$(LOG)
 	$(RUFF) check $(LINTED_PYTHON_DIRS)
 	$(RUFF) format --diff $(LINTED_PYTHON_DIRS)
-	find $(TEMPLATE_DIRS) -type f -name '*.jinja2' | xargs $(DJLINT) --check --lint
+	@if [ -d $(TEMPLATE_DIRS) ]; then \
+		echo "Linting Jinja2 templates in $(TEMPLATE_DIRS)"; \
+		find $(TEMPLATE_DIRS) -type f -name '*.jinja2' | \
+		xargs --no-run-if-empty $(DJLINT) --check --lint; \
+	fi
 
 lint-nod%: ## lint-node: Lint node source
 	$(LOG)
@@ -345,7 +349,11 @@ fix-pytho%: ## fix-python: Fix python source format and lint violations
 	$(LOG)
 	$(RUFF) check --fix $(LINTED_PYTHON_DIRS)
 	$(RUFF) format $(LINTED_PYTHON_DIRS)
-	find $(TEMPLATE_DIRS) -type f -name '*.jinja2' | xargs $(DJLINT) --reformat
+	@if [ -d $(TEMPLATE_DIRS) ]; then \
+		echo "Fixing Jinja2 templates in $(TEMPLATE_DIRS)"; \
+		find $(TEMPLATE_DIRS) -type f -name '*.jinja2' | \
+		xargs --no-run-if-empty $(DJLINT) --reformat; \
+	fi
 
 fix-nod%: ## fix-node: Fix node source format
 	$(LOG)
