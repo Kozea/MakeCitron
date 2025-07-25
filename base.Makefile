@@ -325,6 +325,7 @@ clea%: least-specific-clean ## clean: Clean all built assets
 lint-pytho%: ## lint-python: Lint python source
 	$(LOG)
 	$(RUFF) check $(LINTED_PYTHON_DIRS)
+	$(RUFF) format --diff $(LINTED_PYTHON_DIRS)
 	find $(TEMPLATE_DIRS) -type f -name '*.jinja2' | xargs $(DJLINT) --check --lint
 
 lint-nod%: ## lint-node: Lint node source
