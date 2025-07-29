@@ -46,7 +46,7 @@ TEMPLATE_DIRS ?= $(PYTHON_SRCDIR)/templates
 PYTHON_PKG_TOOLS ?= pip pip-tools setuptools wheel
 ### Commands (from `PYTHON_BINDIR` via `PATH` environment variable)
 DJLINT ?= djlint
-DJLINT_JINJA_CMD = find $(TEMPLATE_DIRS) -type f -name '*.jinja2' | xargs --no-run-if-empty $(DJLINT)
+DJLINT_JINJA_CMD := find $(TEMPLATE_DIRS) -type f -name '*.jinja2' | xargs --no-run-if-empty $(DJLINT)
 FLASK ?= flask
 PIP ?= pip
 PIP_COMPILE ?= pip-compile --generate-hashes
