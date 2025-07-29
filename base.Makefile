@@ -46,6 +46,7 @@ TEMPLATE_DIRS ?= $(PYTHON_SRCDIR)/templates
 PYTHON_PKG_TOOLS ?= pip pip-tools setuptools wheel
 ### Commands (from `PYTHON_BINDIR` via `PATH` environment variable)
 DJLINT ?= djlint
+DJLINT_JINJA_CMD = find $(TEMPLATE_DIRS) -type f -name '*.jinja2' | xargs --no-run-if-empty $(DJLINT)
 FLASK ?= flask
 PIP ?= pip
 PIP_COMPILE ?= pip-compile --generate-hashes
@@ -327,9 +328,8 @@ lint-pytho%: ## lint-python: Lint python source
 	$(RUFF) check $(LINTED_PYTHON_DIRS)
 	$(RUFF) format --diff $(LINTED_PYTHON_DIRS)
 	@if [ -d $(TEMPLATE_DIRS) ]; then \
-		echo "Linting Jinja2 templates in $(TEMPLATE_DIRS)"; \
-		find $(TEMPLATE_DIRS) -type f -name '*.jinja2' | \
-		xargs --no-run-if-empty $(DJLINT) --check --lint; \
+		echo "$(DJLINT_JINJA_CMD) --check --lint"; \
+		$(DJLINT_JINJA_CMD) --check --lint; \
 	fi
 
 lint-nod%: ## lint-node: Lint node source
@@ -350,9 +350,8 @@ fix-pytho%: ## fix-python: Fix python source format and lint violations
 	$(RUFF) check --fix $(LINTED_PYTHON_DIRS)
 	$(RUFF) format $(LINTED_PYTHON_DIRS)
 	@if [ -d $(TEMPLATE_DIRS) ]; then \
-		echo "Fixing Jinja2 templates in $(TEMPLATE_DIRS)"; \
-		find $(TEMPLATE_DIRS) -type f -name '*.jinja2' | \
-		xargs --no-run-if-empty $(DJLINT) --reformat; \
+		echo "$(DJLINT_JINJA_CMD) --reformat"; \
+		$(DJLINT_JINJA_CMD) --reformat; \
 	fi
 
 fix-nod%: ## fix-node: Fix node source format
