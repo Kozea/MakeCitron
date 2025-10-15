@@ -209,7 +209,7 @@ endif
 
 install-python-ven%: ## install-python-venv: Create Python virtual environment
 	$(LOG)
-	test -d "$(VENV)" || $(UV) venv "$(VENV)"
+	test -d "$(VENV)" || $(UV) venv --python $(PYTHON) "$(VENV)"
 
 install-node-pro%: ## install-node-prod: Install node dependencies for production
 	$(LOG)
