@@ -43,7 +43,6 @@ PYTHON_BINDIR ?= $(VENV)/bin
 PYTHON_SRCDIR ?= lib
 LINTED_PYTHON_DIRS ?= $(PYTHON_SRCDIR)
 TEMPLATE_DIRS ?= $(PYTHON_SRCDIR)/templates
-PYTHON_PKG_TOOLS ?= setuptools uv
 ### Commands (from `PYTHON_BINDIR` via `PATH` environment variable)
 DJLINT ?= djlint
 FLASK ?= flask
@@ -211,9 +210,6 @@ endif
 install-python-ven%: ## install-python-venv: Create Python virtual environment
 	$(LOG)
 	test -d "$(VENV)" || $(UV) venv "$(VENV)"
-	# When creating a venv with uv, it is empty by default.
-	# We need to install uv and setuptools inside
-	$(PIP) install --upgrade $(PYTHON_PKG_TOOLS)
 
 install-node-pro%: ## install-node-prod: Install node dependencies for production
 	$(LOG)
@@ -276,8 +272,6 @@ UPGRADE_ARG := --upgrade
 endif
 upgrade-pytho%: ## upgrade-python: Upgrade locked python dependencies (or specific ones with PKG="foo bar")
 	$(LOG)
-	# Ensure Python packaging tools are installed and up to date
-	$(PIP) install --upgrade $(PYTHON_PKG_TOOLS)
 	$(foreach req, $(REQUIREMENTS_LAYERS), $(PIP_COMPILE) $(UPGRADE_ARG) requirements/$(req).in -o requirements/$(req).txt;)
 	$(PIP_SYNC) $(foreach req, $(REQUIREMENTS_LAYERS), -r requirements/$(req).txt)
 
