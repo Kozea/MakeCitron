@@ -49,11 +49,7 @@ DJLINT_JINJA_CMD := find $(TEMPLATE_DIRS) -type f -name '*.jinja2' | xargs --no-
 FLASK ?= flask
 PIP ?= uv pip
 PIP_COMPILE ?= uv pip compile --generate-hashes
-# Instead of using `uv pip sync`
-# To keep extra packages that are not listed in requirements,
-# use `uv pip install` instead.
-# See: https://docs.astral.sh/uv/reference/cli/#uv-pip-sync
-PIP_SYNC ?= uv pip install
+PIP_SYNC ?= uv pip sync
 PYTEST ?= pytest
 RUFF ?= ruff
 UV ?= uv
@@ -239,8 +235,8 @@ requirements/%.txt: requirements/%.in ## requirements/%.txt: Generate python req
 
 install-pytho%: install-python-venv ## install-python: Install python dependencies for development
 	$(LOG)
-	$(foreach req, $(REQUIREMENTS_LAYERS), $(MAKE) requirements/$(req).txt;)
-	$(PIP_SYNC) $(foreach req, $(REQUIREMENTS_LAYERS), -r requirements/$(req).txt)
+	$(foreach req, $(REQUIREMENTS_LAYERS), $(PIP_COMPILE) requirements/$(req).in -o requirements/$(req).txt;)
+	$(PIP_SYNC) $(patsubst %, requirements/%.txt, $(REQUIREMENTS_LAYERS))
 
 install-d%: ## install-db: Install database if any
 	$(LOG)
@@ -274,7 +270,7 @@ endif
 upgrade-pytho%: ## upgrade-python: Upgrade locked python dependencies (or specific ones with PKG="foo bar")
 	$(LOG)
 	$(foreach req, $(REQUIREMENTS_LAYERS), $(PIP_COMPILE) $(UPGRADE_ARG) requirements/$(req).in -o requirements/$(req).txt;)
-	$(PIP_SYNC) $(foreach req, $(REQUIREMENTS_LAYERS), -r requirements/$(req).txt)
+	$(PIP_SYNC) $(patsubst %, requirements/%.txt, $(REQUIREMENTS_LAYERS))
 
 upgrade-nod%: ## upgrade-node: Upgrade interactively locked node dependencies
 	$(LOG)
