@@ -230,11 +230,11 @@ install-nod%: ## install-node: Install node dependencies for development
 	rm -fr .eslintcache
 
 requirements/%.txt: requirements/%.in ## requirements/%.txt: Generate python requirements
-	$(PIP_COMPILE) $<
+	$(PIP_COMPILE) $< $@
 
 install-pytho%: install-python-venv ## install-python: Install python dependencies for development
 	$(LOG)
-	$(foreach req, $(REQUIREMENTS_LAYERS), $(PIP_COMPILE) requirements/$(req).in -o requirements/$(req).txt;)
+	$(foreach req, $(REQUIREMENTS_LAYERS), $(MAKE) requirements/$(req).txt;)
 	$(PIP_SYNC) $(patsubst %, requirements/%.txt, $(REQUIREMENTS_LAYERS))
 
 install-d%: ## install-db: Install database if any
@@ -268,7 +268,7 @@ UPGRADE_ARG := --upgrade
 endif
 upgrade-pytho%: ## upgrade-python: Upgrade locked python dependencies (or specific ones with PKG="foo bar")
 	$(LOG)
-	$(foreach req, $(REQUIREMENTS_LAYERS), $(PIP_COMPILE) $(UPGRADE_ARG) requirements/$(req).in -o requirements/$(req).txt;)
+	$(foreach req, $(REQUIREMENTS_LAYERS), $(PIP_COMPILE) $(UPGRADE_ARG) requirements/$(req).in;)
 	$(PIP_SYNC) $(patsubst %, requirements/%.txt, $(REQUIREMENTS_LAYERS))
 
 upgrade-nod%: ## upgrade-node: Upgrade interactively locked node dependencies
