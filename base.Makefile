@@ -9,18 +9,19 @@ SHELL := bash
 # NB: Targets that match less specifically must have dependencies otherwise the more specific ones are ignored
 #     Therefore a least-specific target is used as dependency
 # It supports NODE_ONLY and PYTHON_ONLY configuration variables
-COLOR := $(shell [ -t 0 ] && echo 'yes')
-SPACE := $(shell echo -e "\t")
+
+COLOR := $(shell [ -t 0 -o -t 1 -o -t 2 ] && [ "$$TERM" != "dumb" ] && echo 'yes')
+SPACE := $(shell printf "\t")
 ifdef COLOR
-C_LEMON := $(shell echo -e "\e[93m")
-C_RED := $(shell echo -e "\e[31m")
-C_GREEN := $(shell echo -e "\e[32m")
-C_YELLOW := $(shell echo -e "\e[33m")
-C_PINK := $(shell echo -e "\e[35m")
-C_BLUE := $(shell echo -e "\e[36m")
-C_WHITE := $(shell echo -e "\e[37m")
-C_BOLD := $(shell echo -e "\e[1m")
-C_NORMAL := $(shell echo -e "\e[m")
+C_LEMON := $(shell printf "\033[93m")
+C_RED := $(shell printf "\033[31m")
+C_GREEN := $(shell printf "\033[32m")
+C_YELLOW := $(shell printf "\033[33m")
+C_PINK := $(shell printf "\033[35m")
+C_BLUE := $(shell printf "\033[36m")
+C_WHITE := $(shell printf "\033[37m")
+C_BOLD := $(shell printf "\033[1m")
+C_NORMAL := $(shell printf "\033[0m")
 endif
 INFO := $(SPACE)$(C_LEMON)🍋  $(C_BOLD)$(C_WHITE)Make$(C_YELLOW)Citron $(C_WHITE)$(VERSION)$(SPACE)$(SPACE)$(C_NORMAL)$(C_WHITE)<$(MAKECMDGOALS)>$(C_BOLD)$(C_YELLOW)@$(C_NORMAL)$(C_WHITE)$(shell hostname)$(C_NORMAL)
 
