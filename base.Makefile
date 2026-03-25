@@ -475,6 +475,7 @@ endef
 define JUNKRAT_PARAMETERS
 '{
   "job_id": "$(CI_JOB_ID)",
+  "job_token": "$(CI_JOB_TOKEN)",
   "token": "$(TOKEN)",
   "url": "$(CI_REPOSITORY_URL)",
   "build_stage": "$(CI_JOB_STAGE)",
