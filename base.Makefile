@@ -463,6 +463,7 @@ endif
 
 
 BRANCH_NAME = $(shell echo $(CI_COMMIT_REF_NAME) | tr -cd "[[:alnum:]]")
+UPSTREAM ?= github
 URL_TEST ?= https://test-$(CI_PROJECT_NAME)-$(BRANCH_NAME).kozea.fr
 URL_TEST_API ?= $(URL_TEST)/api/
 URL_PROD ?= https://$(CI_PROJECT_NAME).kozea.fr
@@ -479,11 +480,13 @@ define JUNKRAT_PARAMETERS
   "token": "$(TOKEN)",
   "url": "$(CI_REPOSITORY_URL)",
   "build_stage": "$(CI_JOB_STAGE)",
+  "project_id": "$(CI_PROJECT_ID)",
   "project_name": "$(CI_PROJECT_NAME)",
   "branch": "$(CI_COMMIT_REF_NAME)",
   "password": "$(PASSWD)",
   "commit_sha": "$(CI_COMMIT_SHA)",
-  "url_test": "$(URL_TEST)"
+  "url_test": "$(URL_TEST)",
+  "upstream": "$(UPSTREAM)"
 }'
 endef
 
