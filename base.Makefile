@@ -231,7 +231,7 @@ endif
 
 install-nod%: ## install-node: Install node dependencies for development
 	$(LOG)
-	yarn install --production=false --check-files
+	$(NPM) install --production=false --check-files
 	rm -fr .eslintcache
 
 requirements/%.txt: requirements/%.in ## requirements/%.txt: Generate python requirements
