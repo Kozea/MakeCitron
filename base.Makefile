@@ -66,6 +66,7 @@ NPM ?= $(shell command -v yarn 2> /dev/null)
 NODE_BINDIR ?= $(shell $(NPM) bin)
 ### Commands (from `NODE_BINDIR` via `PATH` environment variable)
 JEST ?= jest
+PRETTIER ?= prettier
 # Set PATH to node binaries
 export PATH := $(NODE_BINDIR):$(PATH)
 endif
@@ -165,7 +166,7 @@ ifneq ($(STAGED_JINJA_FILES),)
 	@$(DJLINT) $(STAGED_JINJA_FILES) --lint
 endif
 ifneq (,$(STAGED_NODE_FILES))
-	@prettier --write $(STAGED_NODE_FILES)
+	@$(PRETTIER) --write $(STAGED_NODE_FILES)
 endif
 	@FORMATTED_FILES=`git diff --name-only $(STAGED_PYTHON_FILES) $(STAGED_JINJA_FILES) $(STAGED_NODE_FILES)`; if [[ "$$FORMATTED_FILES" ]]; then \
 		echo; \
@@ -184,7 +185,11 @@ endif
 #
 DOT_FILES ?= MakeCitron.Makefile .sass-lint.yml
 PYTHON_DOT_FILES ?= pyproject.toml setup.cfg
-NODE_DOT_FILES ?= .eslintrc.json .eslintignore .prettierrc .prettierignore jsconfig.json
+PRETTIER_DOT_FILES :=
+ifeq ($(PRETTIER),prettier)
+PRETTIER_DOT_FILES := .prettierrc .prettierignore
+endif
+NODE_DOT_FILES ?= .eslintrc.json .eslintignore $(PRETTIER_DOT_FILES) jsconfig.json
 ifdef _NODE
 DOT_FILES += $(NODE_DOT_FILES)
 endif
@@ -352,7 +357,7 @@ fix-pytho%: ## fix-python: Fix python source format and lint violations
 
 fix-nod%: ## fix-node: Fix node source format
 	$(LOG)
-	prettier --write '{,lib/**/}*.js?(x)'
+	$(PRETTIER) --write '{,lib/**/}*.js?(x)'
 
 fi%: least-specific-fix ## fix: Fix all source format
 	$(LOG)
