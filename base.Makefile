@@ -67,6 +67,7 @@ NODE_BINDIR ?= $(shell $(NPM) bin)
 ### Commands (from `NODE_BINDIR` via `PATH` environment variable)
 JEST ?= jest
 PRETTIER ?= prettier
+ESLINT ?= eslint
 # Set PATH to node binaries
 export PATH := $(NODE_BINDIR):$(PATH)
 endif
@@ -118,7 +119,7 @@ al%: install build ## all: Install then build
 
 
 ifdef _NODE
-STAGED_NODE_FILES := $(shell git diff --cached -z --name-only --diff-filter=ACM "*.js" "*.jsx" 2> /dev/null | tr '\0' ' ')
+STAGED_NODE_FILES := $(shell git diff --cached -z --name-only --diff-filter=ACM "*.js" "*.jsx" "*.ts" "*.tsx" 2> /dev/null | tr '\0' ' ')
 ifneq ($(STAGED_NODE_FILES),)
 PARTIALLY_STAGED_NODE_FILES := $(shell git diff --name-only $(STAGED_NODE_FILES))
 ifneq ($(PARTIALLY_STAGED_NODE_FILES),)
@@ -167,6 +168,7 @@ ifneq ($(STAGED_JINJA_FILES),)
 endif
 ifneq (,$(STAGED_NODE_FILES))
 	@$(PRETTIER) --write $(STAGED_NODE_FILES)
+	@$(ESLINT) --fix $(STAGED_NODE_FILES)
 endif
 	@FORMATTED_FILES=`git diff --name-only $(STAGED_PYTHON_FILES) $(STAGED_JINJA_FILES) $(STAGED_NODE_FILES)`; if [[ "$$FORMATTED_FILES" ]]; then \
 		echo; \
@@ -335,7 +337,7 @@ lint-pytho%: ## lint-python: Lint python source
 
 lint-nod%: ## lint-node: Lint node source
 	$(LOG)
-	eslint --cache --ext .jsx --ext .js lib/
+	$(ESLINT) --cache --ext .jsx --ext .js --ext .tsx --ext .ts lib/
 
 lin%: least-specific-lint ## lint: Lint all source
 	$(LOG)
@@ -357,7 +359,8 @@ fix-pytho%: ## fix-python: Fix python source format and lint violations
 
 fix-nod%: ## fix-node: Fix node source format
 	$(LOG)
-	$(PRETTIER) --write '{,lib/**/}*.js?(x)'
+	$(PRETTIER) --write '{,lib/**/}*.{js,jsx,ts,tsx}'
+	$(ESLINT) --fix --ext .jsx --ext .js --ext .tsx --ext .ts lib/
 
 fi%: least-specific-fix ## fix: Fix all source format
 	$(LOG)
